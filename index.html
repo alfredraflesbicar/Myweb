@@ -3,8 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SPL Retur - Cloud Database</title>
+<title>Database Produk</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <style>
 :root{--bg:#0a0e1a;--surface:#131827;--surface-2:#1a2036;--surface-hover:#222a44;--border:rgba(255,255,255,0.06);--border-strong:rgba(255,255,255,0.12);--text:#f1f5f9;--text-2:#cbd5e1;--text-3:#94a3b8;--text-4:#64748b;--accent:#10b981;--accent-2:#34d399;--accent-glow:rgba(16,185,129,0.15);--amber:#f59e0b;--rose:#f43f5e;--sky:#38bdf8;--violet:#a78bfa;--radius:14px;--radius-sm:10px;--shadow:0 10px 40px -10px rgba(0,0,0,0.5);--shadow-lg:0 25px 60px -15px rgba(0,0,0,0.7)}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -18,11 +19,17 @@ a{color:var(--accent-2);text-decoration:none}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:10px}
 ::-webkit-scrollbar-thumb:hover{background:var(--text-4)}
-
 .icon{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
 .icon-sm{width:16px;height:16px}
+.icon-lg{width:24px;height:24px}
 
-/* ===== USER MODE ===== */
+.loading-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:999;flex-direction:column;gap:16px}
+.loading-spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.mobile-wrapper{width:100%;max-width:100%;background:var(--bg);min-height:100vh;position:relative;display:flex;flex-direction:column}
+@media(max-width:768px){.mobile-wrapper{max-width:480px;margin:0 auto;box-shadow:0 0 60px rgba(0,0,0,0.5)}}
+
 .user-app{min-height:100vh;position:relative;z-index:1}
 .user-topbar{display:flex;align-items:center;justify-content:space-between;padding:20px 36px;border-bottom:1px solid var(--border);background:rgba(19,24,39,0.6);backdrop-filter:blur(12px);position:sticky;top:0;z-index:50}
 .user-brand{display:flex;align-items:center;gap:12px}
@@ -67,7 +74,6 @@ a{color:var(--accent-2);text-decoration:none}
 .empty-state h4{font-size:15px;color:var(--text-2);margin-bottom:6px}
 .empty-state p{font-size:13px}
 
-/* ===== ADMIN MODE ===== */
 .app{display:none;min-height:100vh;position:relative;z-index:1}
 .app.active{display:flex}
 .user-app.hidden{display:none}
@@ -135,92 +141,17 @@ a{color:var(--accent-2);text-decoration:none}
 .input-wrap input::placeholder{color:var(--text-4)}
 .input-wrap .prefix{color:var(--text-3);display:grid;place-items:center}
 .form-hint{font-size:11px;color:var(--text-4);margin-top:6px;display:flex;align-items:center;gap:6px}
-
-/* ===== FILE UPLOAD - PERBAIKI ===== */
-.file-upload-container{position:relative}
-.file-upload-area{
-    border:2px dashed var(--border-strong);
-    border-radius:var(--radius);
-    padding:32px 24px;
-    text-align:center;
-    cursor:pointer;
-    transition:all .25s;
-    background:var(--surface-2);
-    position:relative;
-    overflow:hidden;
-}
-.file-upload-area:hover{
-    border-color:var(--accent);
-    background:var(--accent-glow);
-}
-.file-upload-area.has-file{
-    border-color:var(--accent);
-    background:var(--accent-glow);
-    border-style:solid;
-}
-.file-upload-area .upload-icon{
-    width:64px;
-    height:64px;
-    margin:0 auto 16px;
-    background:var(--accent-glow);
-    color:var(--accent-2);
-    border-radius:16px;
-    display:grid;
-    place-items:center;
-    transition:all .25s;
-}
-.file-upload-area:hover .upload-icon{
-    transform:scale(1.05);
-    background:rgba(16,185,129,0.25);
-}
-.file-upload-area.has-file .upload-icon{
-    background:rgba(16,185,129,0.25);
-}
-.file-upload-area p{
-    font-size:14px;
-    color:var(--text-2);
-    font-weight:500;
-    margin-bottom:6px;
-}
-.file-upload-area span{
-    font-size:11px;
-    color:var(--text-4);
-    display:block;
-}
-.file-upload-area.has-file p{
-    color:var(--accent-2);
-    font-weight:600;
-}
-.file-upload-area .preview-container{
-    margin-top:16px;
-    display:none;
-}
-.file-upload-area.has-file .preview-container{
-    display:block;
-}
-.file-upload-area .preview-container img{
-    max-width:100%;
-    max-height:200px;
-    object-fit:contain;
-    border-radius:10px;
-    border:2px solid var(--accent);
-    box-shadow:0 4px 12px rgba(0,0,0,0.3);
-}
-.file-upload-area input[type="file"]{
-    display:none;
-}
-.file-upload-area .file-name{
-    margin-top:12px;
-    font-size:12px;
-    color:var(--accent-2);
-    font-weight:600;
-    word-break:break-all;
-    display:none;
-}
-.file-upload-area.has-file .file-name{
-    display:block;
-}
-
+.file-upload-area{border:2px dashed var(--border-strong);border-radius:var(--radius);padding:32px 24px;text-align:center;cursor:pointer;transition:all .25s;background:var(--surface-2);position:relative}
+.file-upload-area:hover{border-color:var(--accent);background:var(--accent-glow)}
+.file-upload-area.has-file{border-color:var(--accent);background:var(--accent-glow);border-style:solid}
+.file-upload-area .upload-icon{width:56px;height:56px;margin:0 auto 12px;background:var(--accent-glow);color:var(--accent-2);border-radius:14px;display:grid;place-items:center}
+.file-upload-area.has-file .upload-icon{background:rgba(16,185,129,0.25)}
+.file-upload-area p{font-size:13px;color:var(--text-2);font-weight:500;margin-bottom:4px}
+.file-upload-area span{font-size:11px;color:var(--text-4)}
+.file-upload-area.has-file p{color:var(--accent-2);font-weight:600}
+.file-upload-area .preview-thumb{width:80px;height:80px;object-fit:cover;border-radius:10px;margin:0 auto 12px;border:2px solid var(--accent);display:none}
+.file-upload-area.has-file .preview-thumb{display:block}
+.file-upload-area.has-file .upload-icon{display:none}
 .table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border)}
 table{width:100%;border-collapse:collapse}
 thead{background:var(--surface-2)}
@@ -234,6 +165,8 @@ tbody tr:last-child td{border-bottom:none}
 .product-name{font-weight:600;color:var(--text)}
 .product-meta{font-size:11px;color:var(--text-4);margin-top:2px}
 .actions-cell{display:flex;gap:6px}
+
+/* MODAL STYLES */
 .modal-overlay{position:fixed;inset:0;background:rgba(5,8,18,0.75);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:100;padding:20px;animation:fadeIn .2s ease}
 .modal-overlay.show{display:flex}
 .modal{background:var(--surface);border:1px solid var(--border);border-radius:18px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);animation:slideUp .3s ease}
@@ -243,6 +176,13 @@ tbody tr:last-child td{border-bottom:none}
 .modal-close:hover{background:var(--rose);color:#fff}
 .modal-body{padding:24px}
 .modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+
+/* PRODUCT DETAIL POPUP */
+.product-detail-modal .modal{max-width:420px}
+.product-detail-img{width:100%;max-height:300px;object-fit:contain;border-radius:12px;margin-bottom:20px;background:var(--bg);border:1px solid var(--border)}
+.product-detail-name{font-size:20px;font-weight:700;margin-bottom:8px;text-align:center}
+.product-detail-barcode{font-size:14px;color:var(--accent-2);font-family:monospace;text-align:center;padding:10px 16px;background:var(--accent-glow);border-radius:8px;border:1px solid var(--accent);letter-spacing:1px}
+
 .login-screen{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:var(--bg);z-index:200;padding:20px}
 .login-screen.show{display:flex}
 .login-screen::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 20% 30%,rgba(16,185,129,0.12),transparent 40%),radial-gradient(circle at 80% 70%,rgba(56,189,248,0.1),transparent 40%)}
@@ -266,9 +206,17 @@ tbody tr:last-child td{border-bottom:none}
 .toast.success{border-left:3px solid var(--accent)}
 .toast.error{border-left:3px solid var(--rose)}
 .toast.info{border-left:3px solid var(--sky)}
+#reader{width:100%;border-radius:12px;overflow:hidden;background:#000}
+#reader video{border-radius:12px}
+.scan-status{margin-top:12px;padding:12px;background:var(--surface-2);border-radius:10px;text-align:center;font-size:13px;color:var(--text-3)}
+.scan-status.success{background:rgba(16,185,129,0.15);color:var(--accent-2)}
+.scan-result{margin-top:12px;padding:14px;background:var(--accent-glow);border:1px solid var(--accent);border-radius:10px}
+.scan-result label{font-size:11px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px}
+.scan-result .barcode-value{font-size:18px;font-weight:700;color:var(--accent-2);font-family:monospace}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 @keyframes slideIn{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}
+@keyframes zoomIn{from{opacity:0;transform:scale(0.9)}to{opacity:1;transform:scale(1)}}
 .hidden{display:none !important}
 @media(max-width:900px){.sidebar{transform:translateX(-100%);transition:transform .3s}.sidebar.open{transform:translateX(0)}.main{margin-left:0;padding:20px}.search-box{width:100%}.topbar{flex-direction:column;align-items:flex-start;gap:14px}.topbar-actions{width:100%}.menu-toggle{display:grid !important}.user-topbar{padding:16px 20px}.user-hero{padding:40px 20px 30px}.user-hero h2{font-size:24px}.user-content{padding:24px 20px 40px}.product-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}}
 .menu-toggle{display:none}
@@ -277,167 +225,382 @@ tbody tr:last-child td{border-bottom:none}
 <body>
 
 <svg style="display:none">
-<symbol id="icon-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></symbol>
-<symbol id="icon-camera" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></symbol>
-<symbol id="icon-box" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></symbol>
-<symbol id="icon-dashboard" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></symbol>
-<symbol id="icon-plus" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></symbol>
-<symbol id="icon-list" viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></symbol>
-<symbol id="icon-key" viewBox="0 0 24 24"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path></symbol>
-<symbol id="icon-edit" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></symbol>
-<symbol id="icon-trash" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></symbol>
-<symbol id="icon-x" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></symbol>
-<symbol id="icon-save" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></symbol>
-<symbol id="icon-refresh" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></symbol>
-<symbol id="icon-user" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></symbol>
-<symbol id="icon-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></symbol>
-<symbol id="icon-lock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></symbol>
-<symbol id="icon-upload" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></symbol>
+    <symbol id="icon-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></symbol>
+    <symbol id="icon-camera" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></symbol>
+    <symbol id="icon-box" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></symbol>
+    <symbol id="icon-dashboard" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></symbol>
+    <symbol id="icon-plus" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></symbol>
+    <symbol id="icon-list" viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></symbol>
+    <symbol id="icon-key" viewBox="0 0 24 24"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path></symbol>
+    <symbol id="icon-edit" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></symbol>
+    <symbol id="icon-trash" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></symbol>
+    <symbol id="icon-x" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></symbol>
+    <symbol id="icon-save" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></symbol>
+    <symbol id="icon-refresh" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></symbol>
+    <symbol id="icon-user" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></symbol>
+    <symbol id="icon-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></symbol>
+    <symbol id="icon-lock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></symbol>
+    <symbol id="icon-upload" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></symbol>
+    <symbol id="icon-check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></symbol>
+    <symbol id="icon-barcode" viewBox="0 0 24 24"><path d="M3 5v14M8 5v14M12 5v14M17 5v14M21 5v14"/></symbol>
 </svg>
+
+<div class="loading-screen" id="loadingScreen">
+    <div class="loading-spinner"></div>
+    <p style="color:var(--text-3);font-size:13px">Menghubungkan ke database...</p>
+</div>
 
 <!-- USER MODE -->
 <div class="user-app hidden" id="userApp">
-<div class="user-topbar">
-<div class="user-brand">
-<div class="user-brand-icon"><img src="https://share.google/sEmzJzksJuTmp26au" alt="Logo" onerror="this.style.display='none'"></div>
-<div><h1>Database Produk</h1><p>Pencarian Cepat</p></div>
-</div>
-<div class="user-actions"><button class="admin-link" id="btnShowLogin"><svg class="icon icon-sm"><use href="#icon-lock"></use></svg> Login Admin</button></div>
-</div>
-<div class="user-hero">
-<h2>Pencarian Produk</h2>
-<p>Ketik nama produk atau scan barcode untuk melihat detail</p>
-<div class="user-search-wrap">
-<div class="user-search">
-<span class="prefix"><svg class="icon"><use href="#icon-search"></use></svg></span>
-<input type="text" id="userSearch" placeholder="Cari nama produk atau barcode...">
-<button class="scan-btn" id="btnScanUser" title="Scan Barcode"><svg class="icon"><use href="#icon-camera"></use></svg></button>
-</div>
-</div>
-<div class="user-stats">
-<div class="user-stat"><div class="user-stat-icon emerald"><svg class="icon"><use href="#icon-box"></use></svg></div><div><div class="user-stat-value" id="userTotalProduk">0</div><div class="user-stat-label">Total Produk</div></div></div>
-<div class="user-stat"><div class="user-stat-icon sky"><svg class="icon"><use href="#icon-camera"></use></svg></div><div><div class="user-stat-value" id="userTotalFoto">0</div><div class="user-stat-label">Ada Foto</div></div></div>
-</div>
-</div>
-<div class="user-content">
-<div class="user-content-header"><h3 id="userContentTitle">Daftar Produk</h3><span class="count" id="userContentCount">0 produk</span></div>
-<div id="userProductGrid" class="product-grid"></div>
-</div>
+    <div class="user-topbar">
+        <div class="user-brand">
+            <div class="user-brand-icon">
+                <img src="https://share.google/sEmzJzksJuTmp26au" alt="Logo" onerror="this.style.display='none'">
+            </div>
+            <div>
+                <h1>Database Produk</h1>
+                <p>Pencarian Cepat</p>
+            </div>
+        </div>
+        <div class="user-actions">
+            <button class="admin-link" id="btnShowLogin">
+                <svg class="icon icon-sm"><use href="#icon-lock"></use></svg>
+                Login Admin
+            </button>
+        </div>
+    </div>
+    <div class="user-hero">
+        <h2>Pencarian Produk</h2>
+        <p>Klik foto produk untuk melihat detail, atau scan barcode</p>
+        <div class="user-search-wrap">
+            <div class="user-search">
+                <span class="prefix"><svg class="icon"><use href="#icon-search"></use></svg></span>
+                <input type="text" id="userSearch" placeholder="Cari nama produk atau barcode...">
+                <button class="scan-btn" id="btnScanUser" title="Scan Barcode">
+                    <svg class="icon"><use href="#icon-camera"></use></svg>
+                </button>
+            </div>
+        </div>
+        <div class="user-stats">
+            <div class="user-stat">
+                <div class="user-stat-icon emerald"><svg class="icon"><use href="#icon-box"></use></svg></div>
+                <div>
+                    <div class="user-stat-value" id="userTotalProduk">0</div>
+                    <div class="user-stat-label">Total Produk</div>
+                </div>
+            </div>
+            <div class="user-stat">
+                <div class="user-stat-icon sky"><svg class="icon"><use href="#icon-camera"></use></svg></div>
+                <div>
+                    <div class="user-stat-value" id="userTotalFoto">0</div>
+                    <div class="user-stat-label">Ada Foto</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="user-content">
+        <div class="user-content-header">
+            <h3 id="userContentTitle">Daftar Produk</h3>
+            <span class="count" id="userContentCount">0 produk</span>
+        </div>
+        <div id="userProductGrid" class="product-grid"></div>
+    </div>
 </div>
 
 <!-- ADMIN MODE -->
 <div class="app" id="mainApp">
-<aside class="sidebar" id="sidebar">
-<div class="brand">
-<div class="brand-icon"><img src="https://share.google/sEmzJzksJuTmp26au" alt="Logo" onerror="this.style.display='none'"></div>
-<div class="brand-text"><h1>Database Produk</h1><p>Admin Panel</p></div>
-</div>
-<nav class="nav">
-<button class="nav-item active" data-section="dashboard"><span class="nav-icon"><svg class="icon"><use href="#icon-dashboard"></use></svg></span> Dashboard</button>
-<button class="nav-item" data-section="inputProduk"><span class="nav-icon"><svg class="icon"><use href="#icon-plus"></use></svg></span> Input Produk</button>
-<button class="nav-item" data-section="kelolaProduk"><span class="nav-icon"><svg class="icon"><use href="#icon-list"></use></svg></span> Kelola Produk</button>
-</nav>
-<div class="sidebar-footer">
-<div class="avatar">A</div>
-<div class="user-info"><p>Admin</p><span id="adminEmail">Online</span></div>
-<button class="logout-btn" id="btnLogout" title="Logout"><svg class="icon icon-sm"><use href="#icon-logout"></use></svg></button>
-</div>
-</aside>
-<main class="main">
-<div class="topbar">
-<div class="page-title"><h2 id="pageTitle">Dashboard</h2><p id="pageSubtitle">Ringkasan data produk</p></div>
-<div class="topbar-actions">
-<button class="icon-btn menu-toggle" id="btnToggleSidebar"><svg class="icon"><use href="#icon-list"></use></svg></button>
-<div class="search-box"><span class="prefix"><svg class="icon"><use href="#icon-search"></use></svg></span><input type="text" id="globalSearch" placeholder="Cari produk..."></div>
-<button class="icon-btn" id="btnScanAdmin" title="Scan"><svg class="icon"><use href="#icon-camera"></use></svg></button>
-</div>
+    <aside class="sidebar" id="sidebar">
+        <div class="brand">
+            <div class="brand-icon">
+                <img src="https://share.google/sEmzJzksJuTmp26au" alt="Logo" onerror="this.style.display='none'">
+            </div>
+            <div class="brand-text">
+                <h1>Database Produk</h1>
+                <p>Admin Panel</p>
+            </div>
+        </div>
+        <nav class="nav">
+            <button class="nav-item active" data-section="dashboard">
+                <span class="nav-icon"><svg class="icon"><use href="#icon-dashboard"></use></svg></span> Dashboard
+            </button>
+            <button class="nav-item" data-section="inputProduk">
+                <span class="nav-icon"><svg class="icon"><use href="#icon-plus"></use></svg></span> Input Produk
+            </button>
+            <button class="nav-item" data-section="kelolaProduk">
+                <span class="nav-icon"><svg class="icon"><use href="#icon-list"></use></svg></span> Kelola Produk
+            </button>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="avatar">A</div>
+            <div class="user-info">
+                <p>Admin</p>
+                <span id="adminEmail">Online</span>
+            </div>
+            <button class="logout-btn" id="btnLogout" title="Logout">
+                <svg class="icon icon-sm"><use href="#icon-logout"></use></svg>
+            </button>
+        </div>
+    </aside>
+    <main class="main">
+        <div class="topbar">
+            <div class="page-title">
+                <h2 id="pageTitle">Dashboard</h2>
+                <p id="pageSubtitle">Ringkasan data produk</p>
+            </div>
+            <div class="topbar-actions">
+                <button class="icon-btn menu-toggle" id="btnToggleSidebar">
+                    <svg class="icon"><use href="#icon-list"></use></svg>
+                </button>
+                <div class="search-box">
+                    <span class="prefix"><svg class="icon"><use href="#icon-search"></use></svg></span>
+                    <input type="text" id="globalSearch" placeholder="Cari produk...">
+                </div>
+                <button class="icon-btn" id="btnScanAdmin" title="Scan">
+                    <svg class="icon"><use href="#icon-camera"></use></svg>
+                </button>
+            </div>
+        </div>
+
+        <section id="dashboard" class="section">
+            <div class="stats-grid">
+                <div class="stat-card" style="--glow:rgba(16,185,129,0.2)">
+                    <div class="stat-top">
+                        <div class="stat-icon emerald"><svg class="icon"><use href="#icon-box"></use></svg></div>
+                        <span class="stat-trend">Aktif</span>
+                    </div>
+                    <div class="stat-value" id="totalProduk">0</div>
+                    <div class="stat-label">Total Produk</div>
+                </div>
+                <div class="stat-card" style="--glow:rgba(56,189,248,0.2)">
+                    <div class="stat-top">
+                        <div class="stat-icon sky"><svg class="icon"><use href="#icon-camera"></use></svg></div>
+                        <span class="stat-trend">Lengkap</span>
+                    </div>
+                    <div class="stat-value" id="totalFoto">0</div>
+                    <div class="stat-label">Ada Foto</div>
+                </div>
+                <div class="stat-card" style="--glow:rgba(245,158,11,0.2)">
+                    <div class="stat-top">
+                        <div class="stat-icon amber"><svg class="icon"><use href="#icon-plus"></use></svg></div>
+                        <span class="stat-trend">Hari ini</span>
+                    </div>
+                    <div class="stat-value" id="totalHariIni">0</div>
+                    <div class="stat-label">Ditambahkan</div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h3>Data Terbaru</h3>
+                    <span class="badge">5 terakhir</span>
+                </div>
+                <div id="recentProducts"></div>
+            </div>
+        </section>
+
+        <section id="inputProduk" class="section hidden">
+            <div class="card" style="max-width:640px">
+                <div class="card-header">
+                    <h3>Input Produk Baru</h3>
+                </div>
+                <form id="formInputProduk">
+                    <div class="form-group">
+                        <label class="form-label">Foto Produk</label>
+                        <label class="file-upload-area" id="inputFotoWrap">
+                            <img class="preview-thumb" id="inputFotoPreview">
+                            <div class="upload-icon">
+                                <svg class="icon icon-lg"><use href="#icon-upload"></use></svg>
+                            </div>
+                            <p id="inputFotoText">Klik untuk upload atau ambil foto</p>
+                            <span>Format: JPG, PNG. Maksimal 1MB.</span>
+                            <input type="file" id="inputFoto" accept="image/*" capture="environment" class="hidden">
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Barcode</label>
+                        <div class="input-wrap">
+                            <span class="prefix"><svg class="icon icon-sm"><use href="#icon-box"></use></svg></span>
+                            <input type="text" id="inputBarcode" placeholder="Scan atau ketik barcode" required>
+                            <button type="button" class="btn btn-ghost btn-sm" id="btnScanInput">
+                                <svg class="icon icon-sm"><use href="#icon-camera"></use></svg>
+                            </button>
+                        </div>
+                        <div class="form-hint">Primary key, harus unik</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Nama Barang</label>
+                        <div class="input-wrap">
+                            <span class="prefix"><svg class="icon icon-sm"><use href="#icon-box"></use></svg></span>
+                            <input type="text" id="inputNama" placeholder="Contoh: Tissue Paseo 250s" required>
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:10px;margin-top:24px">
+                        <button type="submit" class="btn btn-primary" id="btnSimpanProduk">
+                            <svg class="icon icon-sm"><use href="#icon-save"></use></svg> Simpan
+                        </button>
+                        <button type="button" class="btn btn-ghost" id="btnResetForm">
+                            <svg class="icon icon-sm"><use href="#icon-refresh"></use></svg> Reset
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <section id="kelolaProduk" class="section hidden">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Daftar Produk</h3>
+                    <button class="btn btn-primary btn-sm" id="btnGoInput">
+                        <svg class="icon icon-sm"><use href="#icon-plus"></use></svg> Tambah
+                    </button>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Produk</th>
+                                <th>Barcode</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelProdukBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
 </div>
 
-<section id="dashboard" class="section">
-<div class="stats-grid">
-<div class="stat-card" style="--glow:rgba(16,185,129,0.2)"><div class="stat-top"><div class="stat-icon emerald"><svg class="icon"><use href="#icon-box"></use></svg></div><span class="stat-trend">Aktif</span></div><div class="stat-value" id="totalProduk">0</div><div class="stat-label">Total Produk</div></div>
-<div class="stat-card" style="--glow:rgba(56,189,248,0.2)"><div class="stat-top"><div class="stat-icon sky"><svg class="icon"><use href="#icon-camera"></use></svg></div><span class="stat-trend">Lengkap</span></div><div class="stat-value" id="totalFoto">0</div><div class="stat-label">Ada Foto</div></div>
-<div class="stat-card" style="--glow:rgba(245,158,11,0.2)"><div class="stat-top"><div class="stat-icon amber"><svg class="icon"><use href="#icon-plus"></use></svg></div><span class="stat-trend">Hari ini</span></div><div class="stat-value" id="totalHariIni">0</div><div class="stat-label">Ditambahkan</div></div>
-</div>
-<div class="card"><div class="card-header"><h3>Data Terbaru</h3><span class="badge">5 terakhir</span></div><div id="recentProducts"></div></div>
-</section>
-
-<section id="inputProduk" class="section hidden">
-<div class="card" style="max-width:640px">
-<div class="card-header"><h3>Input Produk Baru</h3></div>
-<form id="formInputProduk">
-<div class="form-group">
-<label class="form-label">Foto Produk</label>
-<div class="file-upload-container">
-<label class="file-upload-area" id="inputFotoWrap" for="inputFoto">
-<div class="upload-icon">
-<svg class="icon" style="width:32px;height:32px"><use href="#icon-upload"></use></svg>
-</div>
-<p id="inputFotoText">Klik untuk upload atau ambil foto</p>
-<span>Format: JPG, PNG. Maksimal 1MB.</span>
-<div class="preview-container">
-<img id="inputFotoPreview" src="" alt="Preview">
-</div>
-<div class="file-name" id="inputFileName"></div>
-<input type="file" id="inputFoto" accept="image/*" capture="environment">
-</label>
-</div>
-</div>
-<div class="form-group">
-<label class="form-label">Barcode</label>
-<div class="input-wrap">
-<span class="prefix"><svg class="icon icon-sm"><use href="#icon-box"></use></svg></span>
-<input type="text" id="inputBarcode" placeholder="Scan atau ketik barcode" required>
-<button type="button" class="btn btn-ghost btn-sm" id="btnScanInput"><svg class="icon icon-sm"><use href="#icon-camera"></use></svg></button>
-</div>
-<div class="form-hint">Primary key, harus unik</div>
-</div>
-<div class="form-group">
-<label class="form-label">Nama Barang</label>
-<div class="input-wrap">
-<span class="prefix"><svg class="icon icon-sm"><use href="#icon-box"></use></svg></span>
-<input type="text" id="inputNama" placeholder="Contoh: Tissue Paseo 250s" required>
-</div>
-</div>
-<div style="display:flex;gap:10px;margin-top:24px">
-<button type="submit" class="btn btn-primary" id="btnSimpanProduk"><svg class="icon icon-sm"><use href="#icon-save"></use></svg> Simpan</button>
-<button type="button" class="btn btn-ghost" id="btnResetForm"><svg class="icon icon-sm"><use href="#icon-refresh"></use></svg> Reset</button>
-</div>
-</form>
-</div>
-</section>
-
-<section id="kelolaProduk" class="section hidden">
-<div class="card">
-<div class="card-header"><h3>Daftar Produk</h3><button class="btn btn-primary btn-sm" id="btnGoInput"><svg class="icon icon-sm"><use href="#icon-plus"></use></svg> Tambah</button></div>
-<div class="table-wrap"><table><thead><tr><th>Produk</th><th>Barcode</th><th>Aksi</th></tr></thead><tbody id="tabelProdukBody"></tbody></table></div>
-</div>
-</section>
-</main>
-</div>
-
+<!-- LOGIN -->
 <div class="login-screen" id="loginScreen">
-<div class="login-card">
-<div class="login-logo"><img src="https://share.google/sEmzJzksJuTmp26au" alt="Logo" onerror="this.style.display='none'"></div>
-<h2>Admin Access</h2>
-<p class="subtitle">Masuk untuk mengelola database</p>
-<div class="form-group">
-<label class="form-label">Email</label>
-<div class="input-wrap">
-<span class="prefix"><svg class="icon icon-sm"><use href="#icon-user"></use></svg></span>
-<input type="email" id="loginEmail" placeholder="admin@example.com">
+    <div class="login-card">
+        <div class="login-logo">
+            <img src="https://share.google/sEmzJzksJuTmp26au" alt="Logo" onerror="this.style.display='none'">
+        </div>
+        <h2>Admin Access</h2>
+        <p class="subtitle">Masuk untuk mengelola database</p>
+        <div class="form-group">
+            <label class="form-label">Email</label>
+            <div class="input-wrap">
+                <span class="prefix"><svg class="icon icon-sm"><use href="#icon-user"></use></svg></span>
+                <input type="email" id="loginEmail" placeholder="admin@example.com">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Password</label>
+            <div class="input-wrap">
+                <span class="prefix"><svg class="icon icon-sm"><use href="#icon-lock"></use></svg></span>
+                <input type="password" id="loginPass" placeholder="Masukkan password">
+            </div>
+        </div>
+        <button class="btn btn-primary" id="btnLogin">Masuk</button>
+        <a href="#" class="login-back" id="btnBackLogin">Kembali ke pencarian</a>
+    </div>
 </div>
+
+<!-- PRODUCT DETAIL POPUP -->
+<div class="modal-overlay product-detail-modal" id="productDetailModal">
+    <div class="modal" style="animation:zoomIn .3s ease">
+        <div class="modal-header">
+            <h3>Detail Produk</h3>
+            <button class="modal-close" id="btnCloseDetail">
+                <svg class="icon"><use href="#icon-x"></use></svg>
+            </button>
+        </div>
+        <div class="modal-body" style="text-align:center">
+            <img id="detailFoto" src="" class="product-detail-img" alt="Foto Produk">
+            <h3 id="detailNama" class="product-detail-name"></h3>
+            <div class="product-detail-barcode">
+                <svg class="icon icon-sm" style="vertical-align:middle;margin-right:6px"><use href="#icon-barcode"></use></svg>
+                <span id="detailBarcode"></span>
+            </div>
+        </div>
+        <div class="modal-footer" style="justify-content:center">
+            <button class="btn btn-ghost" id="btnCloseDetail2">Tutup</button>
+        </div>
+    </div>
 </div>
-<div class="form-group">
-<label class="form-label">Password</label>
-<div class="input-wrap">
-<span class="prefix"><svg class="icon icon-sm"><use href="#icon-lock"></use></svg></span>
-<input type="password" id="loginPass" placeholder="Masukkan password">
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="editModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>Edit Produk</h3>
+            <button class="modal-close" id="btnCloseEdit">
+                <svg class="icon"><use href="#icon-x"></use></svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="formEditProduk">
+                <div class="form-group">
+                    <label class="form-label">Foto</label>
+                    <label class="file-upload-area" id="editFotoWrap">
+                        <img class="preview-thumb" id="editFotoPreview">
+                        <div class="upload-icon">
+                            <svg class="icon icon-lg"><use href="#icon-upload"></use></svg>
+                        </div>
+                        <p id="editFotoText">Ganti foto produk (opsional)</p>
+                        <span>Format: JPG, PNG. Maksimal 1MB.</span>
+                        <input type="file" id="editFoto" accept="image/*" class="hidden">
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Barcode</label>
+                    <div class="input-wrap" style="background:var(--bg)">
+                        <span class="prefix"><svg class="icon icon-sm"><use href="#icon-box"></use></svg></span>
+                        <input type="text" id="editBarcode" readonly>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Nama Barang</label>
+                    <div class="input-wrap">
+                        <span class="prefix"><svg class="icon icon-sm"><use href="#icon-box"></use></svg></span>
+                        <input type="text" id="editNama" required>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" id="btnCancelEdit">Batal</button>
+            <button class="btn btn-primary" id="btnUpdateProduk">
+                <svg class="icon icon-sm"><use href="#icon-save"></use></svg> Simpan
+            </button>
+        </div>
+    </div>
 </div>
-</div>
-<button class="btn btn-primary" id="btnLogin">Masuk</button>
-<a href="#" class="login-back" id="btnBackLogin">Kembali ke pencarian</a>
-</div>
+
+<!-- SCAN MODAL -->
+<div class="modal-overlay" id="scanModal">
+    <div class="modal" style="max-width:560px">
+        <div class="modal-header">
+            <h3>Scan Barcode</h3>
+            <button class="modal-close" id="btnCloseScanX">
+                <svg class="icon"><use href="#icon-x"></use></svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div id="reader" style="width:100%;min-height:250px;background:#000;border-radius:12px;overflow:hidden"></div>
+            <div class="scan-status" id="scanStatus">Klik "Mulai Scan" untuk mengaktifkan kamera</div>
+            <div class="scan-result hidden" id="scanResult">
+                <label>Hasil Decode Barcode</label>
+                <div class="barcode-value" id="scanBarcodeValue"></div>
+                <div id="scanFormatInfo" style="font-size:11px;color:var(--text-3);margin-top:4px"></div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" id="btnStartScan">
+                <svg class="icon icon-sm"><use href="#icon-camera"></use></svg> Mulai Scan
+            </button>
+            <button class="btn btn-ghost" id="btnStopScan" style="display:none">
+                <svg class="icon icon-sm"><use href="#icon-x"></use></svg> Stop
+            </button>
+            <button class="btn btn-primary" id="btnUseScan" style="display:none">
+                <svg class="icon icon-sm"><use href="#icon-check"></use></svg> Gunakan
+            </button>
+            <button class="btn btn-ghost" id="btnCancelScan" style="display:none">
+                Batal
+            </button>
+        </div>
+    </div>
 </div>
 
 <script type="module">
@@ -446,12 +609,12 @@ import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from
 import { getFirestore, collection, addDoc, deleteDoc, doc, updateDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const firebaseConfig = {
-apiKey: "AIzaSyDB8ljheAGKQIFqslO6RohvfWnu6jF6iIQ",
-authDomain: "database-produk-40db0.firebaseapp.com",
-projectId: "database-produk-40db0",
-storageBucket: "database-produk-40db0.firebasestorage.app",
-messagingSenderId: "801084244428",
-appId: "1:801084244428:web:f1a6d2e4f53101f5da1d69"
+    apiKey: "AIzaSyDB8ljheAGKQIFqslO6RohvfWnu6jF6iIQ",
+    authDomain: "database-produk-40db0.firebaseapp.com",
+    projectId: "database-produk-40db0",
+    storageBucket: "database-produk-40db0.firebasestorage.app",
+    messagingSenderId: "801084244428",
+    appId: "1:801084244428:web:f1a6d2e4f53101f5da1d69"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -460,338 +623,630 @@ const db = getFirestore(app);
 
 window.produkList = [];
 window.currentUser = null;
+window.scannedBarcode = null;
+window.scanTarget = null;
+window.html5QrCode = null;
 
 window.showToast = function(message, type = 'info') {
-const existing = document.querySelector('.toast');
-if (existing) existing.remove();
-const toast = document.createElement('div');
-toast.className = `toast ${type}`;
-const icons = { success: '✓', error: '✕', info: 'ℹ' };
-toast.innerHTML = `<span style="font-weight:700">${icons[type]}</span><span>${message}</span>`;
-document.body.appendChild(toast);
-setTimeout(() => toast.remove(), 3500);
+    const existing = document.querySelector('.toast');
+    if (existing) existing.remove();
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    const icons = { success: '✓', error: '✕', info: 'ℹ' };
+    toast.innerHTML = `<span style="font-weight:700">${icons[type]}</span><span>${message}</span>`;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3500);
 };
 
 onAuthStateChanged(auth, (user) => {
-if (user) {
-window.currentUser = user;
-document.getElementById('adminEmail').textContent = user.email;
-document.getElementById('userApp').classList.add('hidden');
-document.getElementById('mainApp').classList.add('active');
-document.getElementById('loginScreen').classList.remove('show');
-renderAll();
-} else {
-window.currentUser = null;
-document.getElementById('mainApp').classList.remove('active');
-document.getElementById('userApp').classList.remove('hidden');
-}
+    document.getElementById('loadingScreen').style.display = 'none';
+    if (user) {
+        window.currentUser = user;
+        document.getElementById('adminEmail').textContent = user.email;
+        document.getElementById('userApp').classList.add('hidden');
+        document.getElementById('mainApp').classList.add('active');
+        document.getElementById('loginScreen').classList.remove('show');
+        renderAll();
+    } else {
+        window.currentUser = null;
+        document.getElementById('mainApp').classList.remove('active');
+        document.getElementById('userApp').classList.remove('hidden');
+    }
 });
 
 window.renderUserProducts = function() {
-const search = (document.getElementById('userSearch').value || '').toLowerCase();
-const grid = document.getElementById('userProductGrid');
-const data = window.produkList || [];
-const filtered = data.filter(p => p.nama.toLowerCase().includes(search) || p.barcode.includes(search));
-
-document.getElementById('userTotalProduk').textContent = data.length;
-document.getElementById('userTotalFoto').textContent = data.filter(p => p.foto).length;
-document.getElementById('userContentCount').textContent = filtered.length + ' produk';
-document.getElementById('userContentTitle').textContent = search ? 'Hasil Pencarian' : 'Daftar Produk';
-
-if (filtered.length === 0) {
-grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-state-icon"><svg class="icon" style="width:32px;height:32px"><use href="#icon-search"></use></svg></div><h4>${data.length === 0 ? 'Belum ada produk' : 'Tidak ada produk ditemukan'}</h4><p>${data.length === 0 ? 'Admin belum menambahkan produk' : 'Coba kata kunci lain'}</p></div>`;
-return;
-}
-
-grid.innerHTML = filtered.map(p => {
-const i = data.indexOf(p);
-return `<div class="product-card" data-idx="${i}"><img src="${p.foto || 'https://via.placeholder.com/300/131827/64748b?text=No+Image'}" class="product-card-img" alt="${p.nama}"><div class="product-card-body"><div class="product-card-name">${p.nama}</div><div class="product-card-meta">${p.barcode}</div></div></div>`;
-}).join('');
+    const search = (document.getElementById('userSearch').value || '').toLowerCase();
+    const grid = document.getElementById('userProductGrid');
+    const data = window.produkList || [];
+    const filtered = data.filter(p => p.nama.toLowerCase().includes(search) || p.barcode.includes(search));
+    
+    document.getElementById('userTotalProduk').textContent = data.length;
+    document.getElementById('userTotalFoto').textContent = data.filter(p => p.foto).length;
+    document.getElementById('userContentCount').textContent = filtered.length + ' produk';
+    document.getElementById('userContentTitle').textContent = search ? 'Hasil Pencarian' : 'Daftar Produk';
+    
+    if (filtered.length === 0) {
+        grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+            <div class="empty-state-icon"><svg class="icon" style="width:32px;height:32px"><use href="#icon-search"></use></svg></div>
+            <h4>${data.length === 0 ? 'Belum ada produk' : 'Tidak ada produk ditemukan'}</h4>
+            <p>${data.length === 0 ? 'Admin belum menambahkan produk' : 'Coba kata kunci lain'}</p>
+        </div>`;
+        return;
+    }
+    
+    grid.innerHTML = filtered.map(p => {
+        const i = data.indexOf(p);
+        return `<div class="product-card" data-idx="${i}">
+            <img src="${p.foto || 'https://via.placeholder.com/300/131827/64748b?text=No+Image'}" class="product-card-img" alt="${p.nama}">
+            <div class="product-card-body">
+                <div class="product-card-name">${p.nama}</div>
+                <div class="product-card-meta">${p.barcode}</div>
+            </div>
+        </div>`;
+    }).join('');
 };
 
 window.renderDashboard = function() {
-const data = window.produkList || [];
-document.getElementById('totalProduk').textContent = data.length;
-document.getElementById('totalFoto').textContent = data.filter(p => p.foto).length;
-const today = new Date().toDateString();
-document.getElementById('totalHariIni').textContent = data.filter(p => {
-const t = p.tanggal?.toDate ? p.tanggal.toDate() : new Date(p.tanggal);
-return t.toDateString() === today;
-}).length;
-
-const recent = document.getElementById('recentProducts');
-if (data.length === 0) {
-recent.innerHTML = '<p style="text-align:center;color:var(--text-4);padding:20px">Belum ada data</p>';
-return;
-}
-recent.innerHTML = data.slice(0, 5).map(p => {
-const t = p.tanggal?.toDate ? p.tanggal.toDate() : new Date(p.tanggal);
-const time = t.toLocaleString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
-return `<div class="recent-item"><img src="${p.foto || 'https://via.placeholder.com/50/131827/64748b?text=No+Image'}" class="recent-thumb"><div class="recent-info"><h4>${p.nama}</h4><p>${p.barcode}</p></div><span class="recent-time">${time}</span></div>`;
-}).join('');
+    const data = window.produkList || [];
+    document.getElementById('totalProduk').textContent = data.length;
+    document.getElementById('totalFoto').textContent = data.filter(p => p.foto).length;
+    const today = new Date().toDateString();
+    document.getElementById('totalHariIni').textContent = data.filter(p => {
+        const t = p.tanggal?.toDate ? p.tanggal.toDate() : new Date(p.tanggal);
+        return t.toDateString() === today;
+    }).length;
+    
+    const recent = document.getElementById('recentProducts');
+    if (data.length === 0) {
+        recent.innerHTML = '<p style="text-align:center;color:var(--text-4);padding:20px">Belum ada data</p>';
+        return;
+    }
+    recent.innerHTML = data.slice(0, 5).map(p => {
+        const t = p.tanggal?.toDate ? p.tanggal.toDate() : new Date(p.tanggal);
+        const time = t.toLocaleString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+        return `<div class="recent-item">
+            <img src="${p.foto || 'https://via.placeholder.com/50/131827/64748b?text=No+Image'}" class="recent-thumb">
+            <div class="recent-info">
+                <h4>${p.nama}</h4>
+                <p>${p.barcode}</p>
+            </div>
+            <span class="recent-time">${time}</span>
+        </div>`;
+    }).join('');
 };
 
 window.renderTabelProduk = function() {
-const tbody = document.getElementById('tabelProdukBody');
-const search = (document.getElementById('globalSearch').value || '').toLowerCase();
-const data = window.produkList || [];
-const filtered = data.filter(p => p.nama.toLowerCase().includes(search) || p.barcode.includes(search));
-
-if (filtered.length === 0) {
-tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--text-4);padding:30px">Tidak ada data</td></tr>';
-return;
-}
-tbody.innerHTML = filtered.map((p, idx) => {
-const realIdx = data.indexOf(p);
-return `<tr><td><div class="product-cell"><img src="${p.foto || 'https://via.placeholder.com/50/131827/64748b?text=No+Image'}" class="product-thumb"><div><div class="product-name">${p.nama}</div><div class="product-meta">${p.barcode}</div></div></div></td><td style="color:var(--text-3);font-family:monospace;font-size:12px">${p.barcode}</td><td><div class="actions-cell"><button class="btn btn-ghost btn-icon btn-edit" data-idx="${realIdx}" title="Edit"><svg class="icon icon-sm"><use href="#icon-edit"></use></svg></button><button class="btn btn-danger btn-icon btn-delete" data-id="${p.id}" title="Hapus"><svg class="icon icon-sm"><use href="#icon-trash"></use></svg></button></div></td></tr>`;
-}).join('');
+    const tbody = document.getElementById('tabelProdukBody');
+    const search = (document.getElementById('globalSearch').value || '').toLowerCase();
+    const data = window.produkList || [];
+    const filtered = data.filter(p => p.nama.toLowerCase().includes(search) || p.barcode.includes(search));
+    
+    if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--text-4);padding:30px">Tidak ada data</td></tr>';
+        return;
+    }
+    tbody.innerHTML = filtered.map((p, idx) => {
+        const realIdx = data.indexOf(p);
+        return `<tr>
+            <td>
+                <div class="product-cell">
+                    <img src="${p.foto || 'https://via.placeholder.com/50/131827/64748b?text=No+Image'}" class="product-thumb">
+                    <div>
+                        <div class="product-name">${p.nama}</div>
+                        <div class="product-meta">${p.barcode}</div>
+                    </div>
+                </div>
+            </td>
+            <td style="color:var(--text-3);font-family:monospace;font-size:12px">${p.barcode}</td>
+            <td>
+                <div class="actions-cell">
+                    <button class="btn btn-ghost btn-icon btn-edit" data-idx="${realIdx}" title="Edit">
+                        <svg class="icon icon-sm"><use href="#icon-edit"></use></svg>
+                    </button>
+                    <button class="btn btn-danger btn-icon btn-delete" data-id="${p.id}" title="Hapus">
+                        <svg class="icon icon-sm"><use href="#icon-trash"></use></svg>
+                    </button>
+                </div>
+            </td>
+        </tr>`;
+    }).join('');
 };
 
 window.renderAll = function() { renderDashboard(); renderTabelProduk(); };
 
 const q = query(collection(db, 'produk'), orderBy('tanggal', 'desc'));
 onSnapshot(q, (snapshot) => {
-window.produkList = [];
-snapshot.forEach((d) => {
-window.produkList.push({ id: d.id, ...d.data() });
-});
-renderUserProducts();
-if (window.currentUser) {
-renderDashboard();
-renderTabelProduk();
-}
+    window.produkList = [];
+    snapshot.forEach((d) => {
+        window.produkList.push({ id: d.id, ...d.data() });
+    });
+    renderUserProducts();
+    if (window.currentUser) {
+        renderDashboard();
+        renderTabelProduk();
+    }
 }, (error) => {
-console.error('Firestore error:', error);
-showToast('Gagal terhubung ke database', 'error');
+    console.error('Firestore error:', error);
+    showToast('Gagal terhubung ke database', 'error');
 });
 
-// ===== FILE UPLOAD HANDLER - PERBAIKI =====
-function handleFileSelect(input) {
-const text = document.getElementById('inputFotoText');
-const wrap = document.getElementById('inputFotoWrap');
-const preview = document.getElementById('inputFotoPreview');
-const fileName = document.getElementById('inputFileName');
-
-if (input.files && input.files[0]) {
-const file = input.files[0];
-
-// Validasi ukuran
-if (file.size > 1024 * 1024) {
-showToast('Ukuran foto maksimal 1MB', 'error');
-input.value = '';
-return;
+function handleFileSelect(input, textId, wrapId, previewId) {
+    const text = document.getElementById(textId);
+    const wrap = document.getElementById(wrapId);
+    const preview = document.getElementById(previewId);
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        if (file.size > 1024 * 1024) {
+            showToast('Ukuran foto maksimal 1MB', 'error');
+            input.value = '';
+            return;
+        }
+        text.textContent = file.name;
+        wrap.classList.add('has-file');
+        const reader = new FileReader();
+        reader.onload = (e) => { preview.src = e.target.result; };
+        reader.readAsDataURL(file);
+    } else {
+        text.textContent = wrapId === 'inputFotoWrap' ? 'Klik untuk upload atau ambil foto' : 'Ganti foto produk (opsional)';
+        wrap.classList.remove('has-file');
+        preview.src = '';
+    }
 }
-
-// Validasi tipe file
-if (!file.type.startsWith('image/')) {
-showToast('Hanya file gambar yang diperbolehkan', 'error');
-input.value = '';
-return;
-}
-
-// Tampilkan nama file
-fileName.textContent = file.name;
-
-// Tambahkan class has-file untuk styling
-wrap.classList.add('has-file');
-
-// Baca file dan tampilkan preview
-const reader = new FileReader();
-reader.onload = (e) => {
-preview.src = e.target.result;
-};
-reader.readAsDataURL(file);
-
-showToast('Foto berhasil dipilih', 'success');
-} else {
-// Reset jika tidak ada file
-text.textContent = 'Klik untuk upload atau ambil foto';
-wrap.classList.remove('has-file');
-preview.src = '';
-fileName.textContent = '';
-}
-}
-
-// Event listener untuk input file
-document.getElementById('inputFoto').addEventListener('change', function(e) {
-handleFileSelect(this);
-});
 
 function compressImage(file, maxWidth = 800, quality = 0.7) {
-return new Promise((resolve) => {
-const reader = new FileReader();
-reader.onload = (e) => {
-const img = new Image();
-img.onload = () => {
-const canvas = document.createElement('canvas');
-const ratio = Math.min(maxWidth / img.width, maxWidth / img.height);
-canvas.width = img.width * ratio;
-canvas.height = img.height * ratio;
-const ctx = canvas.getContext('2d');
-ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-resolve(canvas.toDataURL('image/jpeg', quality));
-};
-img.src = e.target.result;
-};
-reader.readAsDataURL(file);
-});
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const ratio = Math.min(maxWidth / img.width, maxWidth / img.height);
+                canvas.width = img.width * ratio;
+                canvas.height = img.height * ratio;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                resolve(canvas.toDataURL('image/jpeg', quality));
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
 }
 
 async function simpanProduk(e) {
-e.preventDefault();
-if (!window.currentUser) { showToast('Anda tidak memiliki akses', 'error'); return; }
-
-const barcode = document.getElementById('inputBarcode').value.trim();
-const nama = document.getElementById('inputNama').value.trim();
-const fotoInput = document.getElementById('inputFoto');
-const btn = document.getElementById('btnSimpanProduk');
-
-if ((window.produkList || []).some(p => p.barcode === barcode)) {
-showToast('Barcode sudah digunakan', 'error');
-return;
+    e.preventDefault();
+    if (!window.currentUser) { showToast('Anda tidak memiliki akses', 'error'); return; }
+    
+    const barcode = document.getElementById('inputBarcode').value.trim();
+    const nama = document.getElementById('inputNama').value.trim();
+    const fotoInput = document.getElementById('inputFoto');
+    const btn = document.getElementById('btnSimpanProduk');
+    
+    if ((window.produkList || []).some(p => p.barcode === barcode)) {
+        showToast('Barcode sudah digunakan', 'error');
+        return;
+    }
+    
+    btn.disabled = true; btn.innerHTML = '<span class="loading-spinner" style="width:14px;height:14px;border-width:2px"></span> Menyimpan...';
+    
+    try {
+        let fotoBase64 = '';
+        if (fotoInput.files && fotoInput.files[0]) {
+            fotoBase64 = await compressImage(fotoInput.files[0]);
+        }
+        
+        await addDoc(collection(db, 'produk'), {
+            barcode, nama, foto: fotoBase64,
+            tanggal: new Date()
+        });
+        
+        showToast('Produk tersimpan', 'success');
+        document.getElementById('formInputProduk').reset();
+        document.getElementById('inputFotoText').textContent = 'Klik untuk upload atau ambil foto';
+        document.getElementById('inputFotoWrap').classList.remove('has-file');
+        document.getElementById('inputFotoPreview').src = '';
+    } catch (err) {
+        console.error(err);
+        showToast('Gagal menyimpan: ' + err.message, 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<svg class="icon icon-sm"><use href="#icon-save"></use></svg> Simpan';
+    }
 }
 
-btn.disabled = true; btn.innerHTML = '<span class="loading-spinner" style="width:14px;height:14px;border-width:2px"></span> Menyimpan...';
-
-try {
-let fotoBase64 = '';
-if (fotoInput.files && fotoInput.files[0]) {
-fotoBase64 = await compressImage(fotoInput.files[0]);
+function openEditModal(i) {
+    const p = window.produkList[i];
+    document.getElementById('editBarcode').value = p.barcode;
+    document.getElementById('editNama').value = p.nama;
+    document.getElementById('editModal').dataset.docId = p.id;
+    document.getElementById('editFotoText').textContent = p.foto ? 'Foto sudah ada (klik untuk ganti)' : 'Ganti foto produk (opsional)';
+    if (p.foto) {
+        document.getElementById('editFotoWrap').classList.add('has-file');
+        document.getElementById('editFotoPreview').src = p.foto;
+    } else {
+        document.getElementById('editFotoWrap').classList.remove('has-file');
+        document.getElementById('editFotoPreview').src = '';
+    }
+    openModal('editModal');
 }
 
-await addDoc(collection(db, 'produk'), {
-barcode, nama, foto: fotoBase64,
-tanggal: new Date()
-});
-
-showToast('Produk tersimpan', 'success');
-document.getElementById('formInputProduk').reset();
-document.getElementById('inputFotoText').textContent = 'Klik untuk upload atau ambil foto';
-document.getElementById('inputFotoWrap').classList.remove('has-file');
-document.getElementById('inputFotoPreview').src = '';
-document.getElementById('inputFileName').textContent = '';
-} catch (err) {
-console.error(err);
-showToast('Gagal menyimpan: ' + err.message, 'error');
-} finally {
-btn.disabled = false;
-btn.innerHTML = '<svg class="icon icon-sm"><use href="#icon-save"></use></svg> Simpan';
+async function updateProduk(e) {
+    e.preventDefault();
+    if (!window.currentUser) { showToast('Anda tidak memiliki akses', 'error'); return; }
+    
+    const docId = document.getElementById('editModal').dataset.docId;
+    const nama = document.getElementById('editNama').value.trim();
+    const fotoInput = document.getElementById('editFoto');
+    const btn = document.getElementById('btnUpdateProduk');
+    
+    btn.disabled = true; btn.innerHTML = '<span class="loading-spinner" style="width:14px;height:14px;border-width:2px"></span> Menyimpan...';
+    
+    try {
+        const updateData = { nama };
+        if (fotoInput.files && fotoInput.files[0]) {
+            updateData.foto = await compressImage(fotoInput.files[0]);
+        }
+        await updateDoc(doc(db, 'produk', docId), updateData);
+        showToast('Produk diperbarui', 'success');
+        closeModal('editModal');
+    } catch (err) {
+        console.error(err);
+        showToast('Gagal memperbarui: ' + err.message, 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<svg class="icon icon-sm"><use href="#icon-save"></use></svg> Simpan';
+    }
 }
+
+// ===== PRODUCT DETAIL POPUP =====
+function openProductDetail(i) {
+    const p = window.produkList[i];
+    if (!p) return;
+    
+    document.getElementById('detailFoto').src = p.foto || 'https://via.placeholder.com/300/131827/64748b?text=No+Image';
+    document.getElementById('detailNama').textContent = p.nama;
+    document.getElementById('detailBarcode').textContent = p.barcode;
+    openModal('productDetailModal');
 }
 
 async function hapusProduk(docId) {
-if (!window.currentUser) { showToast('Anda tidak memiliki akses', 'error'); return; }
-if (!confirm('Hapus produk ini?')) return;
-try {
-await deleteDoc(doc(db, 'produk', docId));
-showToast('Produk dihapus', 'success');
-} catch (err) {
-console.error(err);
-showToast('Gagal menghapus', 'error');
+    if (!window.currentUser) { showToast('Anda tidak memiliki akses', 'error'); return; }
+    if (!confirm('Hapus produk ini?')) return;
+    try {
+        await deleteDoc(doc(db, 'produk', docId));
+        showToast('Produk dihapus', 'success');
+    } catch (err) {
+        console.error(err);
+        showToast('Gagal menghapus', 'error');
+    }
 }
+
+function openModal(id) { document.getElementById(id).classList.add('show'); }
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+function openScanModal(target) {
+    window.scanTarget = target || null;
+    window.scannedBarcode = null;
+    
+    const statusEl = document.getElementById('scanStatus');
+    statusEl.textContent = 'Klik "Mulai Scan" untuk mengaktifkan kamera';
+    statusEl.className = 'scan-status';
+    document.getElementById('scanResult').classList.add('hidden');
+    document.getElementById('scanFormatInfo').textContent = '';
+    
+    document.getElementById('btnStartScan').style.display = 'inline-flex';
+    document.getElementById('btnStopScan').style.display = 'none';
+    document.getElementById('btnUseScan').style.display = 'none';
+    document.getElementById('btnCancelScan').style.display = 'inline-flex';
+    
+    openModal('scanModal');
+}
+
+async function startScan() {
+    const statusEl = document.getElementById('scanStatus');
+    statusEl.textContent = '📷 Meminta akses kamera...';
+    statusEl.className = 'scan-status';
+    
+    try {
+        if (window.html5QrCode) {
+            try { await window.html5QrCode.stop(); } catch(e) {}
+            try { window.html5QrCode.clear(); } catch(e) {}
+        }
+        
+        window.html5QrCode = new Html5Qrcode("reader");
+        
+        const config = {
+            fps: 15,
+            qrbox: { width: 280, height: 120 },
+            aspectRatio: 1.5,
+            formatsToSupport: [
+                Html5QrcodeSupportedFormats.EAN_13,
+                Html5QrcodeSupportedFormats.EAN_8,
+                Html5QrcodeSupportedFormats.UPC_A,
+                Html5QrcodeSupportedFormats.UPC_E,
+                Html5QrcodeSupportedFormats.CODE_128,
+                Html5QrcodeSupportedFormats.CODE_39,
+                Html5QrcodeSupportedFormats.CODE_93,
+                Html5QrcodeSupportedFormats.ITF,
+                Html5QrcodeSupportedFormats.QR_CODE
+            ]
+        };
+        
+        await window.html5QrCode.start(
+            { facingMode: { exact: "environment" } },
+            config,
+            onScanSuccess,
+            onScanFailure
+        );
+        
+        statusEl.innerHTML = '🎯 Arahkan kamera ke barcode...<br><small style="color:var(--text-4)">Pastikan barcode jelas & tidak blur</small>';
+        document.getElementById('btnStartScan').style.display = 'none';
+        document.getElementById('btnStopScan').style.display = 'inline-flex';
+        
+    } catch (err) {
+        console.error(err);
+        try {
+            await window.html5QrCode.start(
+                { facingMode: "environment" },
+                { fps: 15, qrbox: { width: 280, height: 120 }, aspectRatio: 1.5, formatsToSupport: [Html5QrcodeSupportedFormats.EAN_13, Html5QrcodeSupportedFormats.CODE_128, Html5QrcodeSupportedFormats.QR_CODE] },
+                onScanSuccess,
+                onScanFailure
+            );
+            statusEl.innerHTML = '🎯 Arahkan kamera ke barcode...';
+            document.getElementById('btnStartScan').style.display = 'none';
+            document.getElementById('btnStopScan').style.display = 'inline-flex';
+        } catch (err2) {
+            statusEl.innerHTML = '❌ Gagal mengakses kamera.<br><small>Pastikan izin kamera diberikan & pakai HTTPS</small>';
+        }
+    }
+}
+
+function onScanSuccess(decodedText, decodedResult) {
+    window.scannedBarcode = decodedText;
+    document.getElementById('scanBarcodeValue').textContent = decodedText;
+    
+    let formatInfo = '';
+    if (decodedResult && decodedResult.result && decodedResult.result.format) {
+        const formatMap = {
+            'EAN_13': 'EAN-13 (Produk Retail)',
+            'EAN_8': 'EAN-8',
+            'UPC_A': 'UPC-A',
+            'UPC_E': 'UPC-E',
+            'CODE_128': 'Code 128',
+            'CODE_39': 'Code 39',
+            'CODE_93': 'Code 93',
+            'ITF': 'ITF (Interleaved 2 of 5)',
+            'QR_CODE': 'QR Code'
+        };
+        formatInfo = formatMap[decodedResult.result.format.formatName] || decodedResult.result.format.formatName;
+    }
+    document.getElementById('scanFormatInfo').textContent = formatInfo ? `Format: ${formatInfo}` : '';
+    
+    document.getElementById('scanResult').classList.remove('hidden');
+    document.getElementById('scanStatus').innerHTML = '✅ Barcode berhasil diterjemahkan!';
+    document.getElementById('scanStatus').className = 'scan-status success';
+    document.getElementById('btnUseScan').style.display = 'inline-flex';
+    document.getElementById('btnStopScan').style.display = 'none';
+    
+    stopScan();
+    
+    try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        oscillator.frequency.value = 1200;
+        gainNode.gain.value = 0.1;
+        oscillator.start();
+        setTimeout(() => oscillator.stop(), 150);
+    } catch(e) {}
+}
+
+function onScanFailure(error) {}
+
+function stopScan() {
+    if (window.html5QrCode) {
+        try {
+            window.html5QrCode.stop();
+            window.html5QrCode.clear();
+        } catch (e) {}
+    }
+    document.getElementById('btnStartScan').style.display = 'inline-flex';
+    document.getElementById('btnStopScan').style.display = 'none';
+}
+
+function useScannedBarcode() {
+    if (!window.scannedBarcode) {
+        showToast('Tidak ada barcode yang discan', 'error');
+        return;
+    }
+    
+    const target = window.scanTarget;
+    if (target === 'user') {
+        document.getElementById('userSearch').value = window.scannedBarcode;
+        renderUserProducts();
+    } else if (target === 'admin') {
+        document.getElementById('globalSearch').value = window.scannedBarcode;
+        renderTabelProduk();
+    } else if (target === 'inputBarcode') {
+        document.getElementById('inputBarcode').value = window.scannedBarcode;
+    }
+    
+    closeModal('scanModal');
+    showToast('Barcode: ' + window.scannedBarcode, 'success');
+}
+
+function closeScanModal() {
+    stopScan();
+    closeModal('scanModal');
+    window.scannedBarcode = null;
+    window.scanTarget = null;
 }
 
 function showSection(id) {
-document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
-document.getElementById(id).classList.remove('hidden');
-document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-const navBtn = document.querySelector(`.nav-item[data-section="${id}"]`);
-if (navBtn) navBtn.classList.add('active');
-const titles = {
-dashboard: ['Dashboard', 'Ringkasan data produk'],
-inputProduk: ['Input Produk', 'Tambah produk baru ke database'],
-kelolaProduk: ['Kelola Produk', 'Edit dan hapus data produk']
-};
-document.getElementById('pageTitle').textContent = titles[id][0];
-document.getElementById('pageSubtitle').textContent = titles[id][1];
-if (window.innerWidth <= 900) document.getElementById('sidebar').classList.remove('open');
+    document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
+    document.getElementById(id).classList.remove('hidden');
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+    const navBtn = document.querySelector(`.nav-item[data-section="${id}"]`);
+    if (navBtn) navBtn.classList.add('active');
+    const titles = {
+        dashboard: ['Dashboard', 'Ringkasan data produk'],
+        inputProduk: ['Input Produk', 'Tambah produk baru ke database'],
+        kelolaProduk: ['Kelola Produk', 'Edit dan hapus data produk']
+    };
+    document.getElementById('pageTitle').textContent = titles[id][0];
+    document.getElementById('pageSubtitle').textContent = titles[id][1];
+    if (window.innerWidth <= 900) document.getElementById('sidebar').classList.remove('open');
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-
-document.getElementById('btnShowLogin').addEventListener('click', () => {
-document.getElementById('loginScreen').classList.add('show');
-});
-document.getElementById('btnBackLogin').addEventListener('click', (e) => {
-e.preventDefault();
-document.getElementById('loginScreen').classList.remove('show');
-});
-document.getElementById('btnLogin').addEventListener('click', async () => {
-const email = document.getElementById('loginEmail').value.trim();
-const pass = document.getElementById('loginPass').value;
-if (!email || !pass) { showToast('Isi email dan password', 'error'); return; }
-const btn = document.getElementById('btnLogin');
-btn.disabled = true; btn.textContent = 'Memproses...';
-try {
-await signInWithEmailAndPassword(auth, email, pass);
-showToast('Login berhasil', 'success');
-} catch (e) {
-let msg = 'Login gagal';
-if (e.code === 'auth/user-not-found' || e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential') msg = 'Email atau password salah';
-showToast(msg, 'error');
-} finally {
-btn.disabled = false; btn.textContent = 'Masuk';
-}
-});
-document.getElementById('btnLogout').addEventListener('click', async () => {
-await signOut(auth);
-document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
-document.getElementById('dashboard').classList.remove('hidden');
-document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-document.querySelectorAll('.nav-item')[0].classList.add('active');
-showToast('Logout berhasil', 'info');
-});
-
-document.querySelectorAll('.nav-item').forEach(btn => {
-btn.addEventListener('click', () => {
-showSection(btn.dataset.section);
-});
-});
-document.getElementById('btnToggleSidebar').addEventListener('click', () => {
-document.getElementById('sidebar').classList.toggle('open');
-});
-document.getElementById('btnGoInput').addEventListener('click', () => {
-showSection('inputProduk');
-});
-
-document.getElementById('userSearch').addEventListener('input', () => {
-renderUserProducts();
-});
-document.getElementById('globalSearch').addEventListener('input', () => {
-renderTabelProduk();
-});
-
-document.getElementById('formInputProduk').addEventListener('submit', simpanProduk);
-document.getElementById('btnResetForm').addEventListener('click', () => {
-document.getElementById('formInputProduk').reset();
-document.getElementById('inputFotoText').textContent = 'Klik untuk upload atau ambil foto';
-document.getElementById('inputFotoWrap').classList.remove('has-file');
-document.getElementById('inputFotoPreview').src = '';
-document.getElementById('inputFileName').textContent = '';
-});
-
-document.getElementById('tabelProdukBody').addEventListener('click', (e) => {
-const editBtn = e.target.closest('.btn-edit');
-const deleteBtn = e.target.closest('.btn-delete');
-
-if (editBtn) {
-const idx = parseInt(editBtn.dataset.idx);
-// Edit functionality can be added here
-} else if (deleteBtn) {
-const id = deleteBtn.dataset.id;
-hapusProduk(id);
-}
-});
-
-document.addEventListener('keydown', (e) => {
-if (e.key === 'Escape') {
-if (document.getElementById('loginScreen').classList.contains('show')) {
-document.getElementById('loginScreen').classList.remove('show');
-}
-}
-});
-
-console.log('✅ Semua event listener terdaftar');
+    
+    document.getElementById('btnShowLogin').addEventListener('click', () => {
+        document.getElementById('loginScreen').classList.add('show');
+    });
+    document.getElementById('btnBackLogin').addEventListener('click', (e) => {
+        e.preventDefault();
+        document.getElementById('loginScreen').classList.remove('show');
+    });
+    document.getElementById('btnLogin').addEventListener('click', async () => {
+        const email = document.getElementById('loginEmail').value.trim();
+        const pass = document.getElementById('loginPass').value;
+        if (!email || !pass) { showToast('Isi email dan password', 'error'); return; }
+        const btn = document.getElementById('btnLogin');
+        btn.disabled = true; btn.textContent = 'Memproses...';
+        try {
+            await signInWithEmailAndPassword(auth, email, pass);
+            showToast('Login berhasil', 'success');
+        } catch (e) {
+            let msg = 'Login gagal';
+            if (e.code === 'auth/user-not-found' || e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential') msg = 'Email atau password salah';
+            showToast(msg, 'error');
+        } finally {
+            btn.disabled = false; btn.textContent = 'Masuk';
+        }
+    });
+    document.getElementById('btnLogout').addEventListener('click', async () => {
+        await signOut(auth);
+        document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
+        document.getElementById('dashboard').classList.remove('hidden');
+        document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.nav-item')[0].classList.add('active');
+        showToast('Logout berhasil', 'info');
+    });
+    
+    document.querySelectorAll('.nav-item').forEach(btn => {
+        btn.addEventListener('click', () => {
+            showSection(btn.dataset.section);
+        });
+    });
+    document.getElementById('btnToggleSidebar').addEventListener('click', () => {
+        document.getElementById('sidebar').classList.toggle('open');
+    });
+    document.getElementById('btnGoInput').addEventListener('click', () => {
+        showSection('inputProduk');
+    });
+    
+    document.getElementById('userSearch').addEventListener('input', () => {
+        renderUserProducts();
+    });
+    document.getElementById('globalSearch').addEventListener('input', () => {
+        renderTabelProduk();
+    });
+    
+    document.getElementById('btnScanUser').addEventListener('click', () => {
+        openScanModal('user');
+    });
+    document.getElementById('btnScanAdmin').addEventListener('click', () => {
+        openScanModal('admin');
+    });
+    document.getElementById('btnScanInput').addEventListener('click', () => {
+        openScanModal('inputBarcode');
+    });
+    
+    document.getElementById('btnStartScan').addEventListener('click', (e) => {
+        e.preventDefault();
+        startScan();
+    });
+    document.getElementById('btnStopScan').addEventListener('click', (e) => {
+        e.preventDefault();
+        stopScan();
+        document.getElementById('scanStatus').textContent = 'Scan dihentikan. Klik "Mulai Scan" untuk mencoba lagi.';
+        document.getElementById('scanStatus').className = 'scan-status';
+    });
+    document.getElementById('btnUseScan').addEventListener('click', (e) => {
+        e.preventDefault();
+        useScannedBarcode();
+    });
+    document.getElementById('btnCancelScan').addEventListener('click', (e) => {
+        e.preventDefault();
+        closeScanModal();
+    });
+    document.getElementById('btnCloseScanX').addEventListener('click', (e) => {
+        e.preventDefault();
+        closeScanModal();
+    });
+    
+    document.getElementById('formInputProduk').addEventListener('submit', simpanProduk);
+    document.getElementById('btnResetForm').addEventListener('click', () => {
+        document.getElementById('formInputProduk').reset();
+        document.getElementById('inputFotoText').textContent = 'Klik untuk upload atau ambil foto';
+        document.getElementById('inputFotoWrap').classList.remove('has-file');
+        document.getElementById('inputFotoPreview').src = '';
+    });
+    document.getElementById('inputFoto').addEventListener('change', (e) => {
+        handleFileSelect(e.target, 'inputFotoText', 'inputFotoWrap', 'inputFotoPreview');
+    });
+    
+    document.getElementById('formEditProduk').addEventListener('submit', updateProduk);
+    document.getElementById('btnCancelEdit').addEventListener('click', () => closeModal('editModal'));
+    document.getElementById('btnCloseEdit').addEventListener('click', () => closeModal('editModal'));
+    document.getElementById('editFoto').addEventListener('change', (e) => {
+        handleFileSelect(e.target, 'editFotoText', 'editFotoWrap', 'editFotoPreview');
+    });
+    
+    // ===== PRODUCT DETAIL POPUP HANDLERS =====
+    document.getElementById('btnCloseDetail').addEventListener('click', () => closeModal('productDetailModal'));
+    document.getElementById('btnCloseDetail2').addEventListener('click', () => closeModal('productDetailModal'));
+    
+    // Click on product card to show detail popup
+    document.getElementById('userProductGrid').addEventListener('click', (e) => {
+        const card = e.target.closest('.product-card');
+        if (card) {
+            const idx = parseInt(card.dataset.idx);
+            openProductDetail(idx);
+        }
+    });
+    
+    document.getElementById('tabelProdukBody').addEventListener('click', (e) => {
+        const editBtn = e.target.closest('.btn-edit');
+        const deleteBtn = e.target.closest('.btn-delete');
+        
+        if (editBtn) {
+            const idx = parseInt(editBtn.dataset.idx);
+            openEditModal(idx);
+        } else if (deleteBtn) {
+            const id = deleteBtn.dataset.id;
+            hapusProduk(id);
+        }
+    });
+    
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.modal-overlay.show').forEach(m => m.classList.remove('show'));
+            if (document.getElementById('loginScreen').classList.contains('show')) {
+                document.getElementById('loginScreen').classList.remove('show');
+            }
+            if (document.getElementById('scanModal').classList.contains('show')) {
+                closeScanModal();
+            }
+            if (document.getElementById('productDetailModal').classList.contains('show')) {
+                closeModal('productDetailModal');
+            }
+        }
+    });
+    
+    console.log('✅ Semua event listener terdaftar');
 });
 </script>
 </body>
