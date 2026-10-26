@@ -67,6 +67,7 @@ a{color:var(--accent-2);text-decoration:none}
 .empty-state-icon{width:70px;height:70px;margin:0 auto 16px;background:var(--surface-2);border-radius:20px;display:grid;place-items:center;border:1px solid var(--border)}
 .empty-state h4{font-size:15px;color:var(--text-2);margin-bottom:6px}
 .empty-state p{font-size:13px}
+.error-banner{background:rgba(244,63,94,0.1);border:1px solid rgba(244,63,94,0.3);border-radius:12px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;gap:12px;color:var(--rose)}
 .app{display:none;min-height:100vh;position:relative;z-index:1}
 .app.active{display:flex}
 .user-app.hidden{display:none}
@@ -209,7 +210,7 @@ tbody tr:last-child td{border-bottom:none}
 
 <div class="loading-screen" id="loadingScreen">
     <div class="loading-spinner"></div>
-    <p style="color:var(--text-3);font-size:13px">Menghubungkan ke database...</p>
+    <p style="color:var(--text-3);font-size:13px" id="loadingText">Menghubungkan ke database...</p>
 </div>
 
 <svg style="display:none">
@@ -230,6 +231,7 @@ tbody tr:last-child td{border-bottom:none}
     <symbol id="icon-lock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></symbol>
     <symbol id="icon-upload" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></symbol>
     <symbol id="icon-check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></symbol>
+    <symbol id="icon-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></symbol>
 </svg>
 
 <!-- USER MODE -->
@@ -281,6 +283,13 @@ tbody tr:last-child td{border-bottom:none}
         </div>
     </div>
     <div class="user-content">
+        <div id="errorBanner" class="error-banner hidden" style="max-width:640px;margin:0 auto 20px">
+            <svg class="icon" style="color:var(--rose)"><use href="#icon-alert"></use></svg>
+            <div>
+                <strong>Database belum terhubung</strong>
+                <p style="font-size:12px;margin-top:4px">Konfigurasi Firebase belum diisi. Silakan hubungi admin.</p>
+            </div>
+        </div>
         <div class="user-content-header">
             <h3 id="userContentTitle">Daftar Produk</h3>
             <span class="count" id="userContentCount">0 produk</span>
@@ -344,6 +353,13 @@ tbody tr:last-child td{border-bottom:none}
         </div>
 
         <section id="dashboard" class="section">
+            <div id="adminErrorBanner" class="error-banner hidden">
+                <svg class="icon" style="color:var(--rose)"><use href="#icon-alert"></use></svg>
+                <div>
+                    <strong>Database belum terhubung</strong>
+                    <p style="font-size:12px;margin-top:4px">Periksa konfigurasi Firebase di file index.html</p>
+                </div>
+            </div>
             <div class="stats-grid">
                 <div class="stat-card" style="--glow:rgba(16,185,129,0.2)">
                     <div class="stat-top">
@@ -585,21 +601,46 @@ import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from
 import { getFirestore, collection, addDoc, deleteDoc, doc, updateDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 // ============================================
-// 🔧 GANTI DENGAN KONFIGURASI FIREBASE ANDA
+// ⚠️ PENTING: GANTI DENGAN KONFIGURASI FIREBASE ANDA!
+// Cara: Firebase Console → Project Settings → Your Apps → Config
 // ============================================
 const firebaseConfig = {
-    apiKey: "AIzaSyCjJLz8bGkMfMzqGqYqYqYqYqYqYqYqYqY",
-    authDomain: "database-produk-40db0.firebaseapp.com",
-    projectId: "database-produk-40db0",
-    storageBucket: "database-produk-40db0.appspot.com",
-    messagingSenderId: "1801084244428",
-    appId: "1:801084244428:web:f1a6d2e4f53101f5da1d69"
+    apiKey: "GANTI_DENGAN_API_KEY_ANDA",
+    authDomain: "GANTI_DENGAN_PROJECT.firebaseapp.com",
+    projectId: "GANTI_DENGAN_PROJECT_ID",
+    storageBucket: "GANTI_DENGAN_BUCKET.appspot.com",
+    messagingSenderId: "GANTI_DENGAN_SENDER_ID",
+    appId: "GANTI_DENGAN_APP_ID"
 };
 // ============================================
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+// Cek apakah config masih placeholder
+const isPlaceholder = firebaseConfig.apiKey.includes('GANTI') || firebaseConfig.apiKey.length < 20;
+
+let app, auth, db;
+let dbConnected = false;
+
+try {
+    if (!isPlaceholder) {
+        app = initializeApp(firebaseConfig);
+        auth = getAuth(app);
+        db = getFirestore(app);
+        dbConnected = true;
+    } else {
+        console.warn('⚠️ Firebase config masih placeholder. Silakan ganti dengan config asli Anda.');
+        document.getElementById('loadingText').textContent = 'Database belum dikonfigurasi';
+        setTimeout(() => {
+            document.getElementById('loadingScreen').style.display = 'none';
+            document.getElementById('userApp').classList.remove('hidden');
+            document.getElementById('errorBanner').classList.remove('hidden');
+            document.getElementById('adminErrorBanner').classList.remove('hidden');
+            renderUserProducts();
+        }, 1500);
+    }
+} catch (e) {
+    console.error('Firebase init error:', e);
+    document.getElementById('loadingText').textContent = 'Gagal menginisialisasi database';
+}
 
 window.produkList = [];
 window.currentUser = null;
@@ -607,7 +648,6 @@ window.scannedBarcode = null;
 window.scanTarget = null;
 window.html5QrCode = null;
 
-// ===== TOAST =====
 window.showToast = function(message, type = 'info') {
     const existing = document.querySelector('.toast');
     if (existing) existing.remove();
@@ -620,21 +660,43 @@ window.showToast = function(message, type = 'info') {
 };
 
 // ===== AUTH =====
-onAuthStateChanged(auth, (user) => {
-    document.getElementById('loadingScreen').style.display = 'none';
-    if (user) {
-        window.currentUser = user;
-        document.getElementById('adminEmail').textContent = user.email;
-        document.getElementById('userApp').classList.add('hidden');
-        document.getElementById('mainApp').classList.add('active');
-        document.getElementById('loginScreen').classList.remove('show');
-        renderAll();
-    } else {
-        window.currentUser = null;
-        document.getElementById('mainApp').classList.remove('active');
-        document.getElementById('userApp').classList.remove('hidden');
-    }
-});
+if (dbConnected) {
+    onAuthStateChanged(auth, (user) => {
+        document.getElementById('loadingScreen').style.display = 'none';
+        if (user) {
+            window.currentUser = user;
+            document.getElementById('adminEmail').textContent = user.email;
+            document.getElementById('userApp').classList.add('hidden');
+            document.getElementById('mainApp').classList.add('active');
+            document.getElementById('loginScreen').classList.remove('show');
+            renderAll();
+        } else {
+            window.currentUser = null;
+            document.getElementById('mainApp').classList.remove('active');
+            document.getElementById('userApp').classList.remove('hidden');
+        }
+    });
+
+    const q = query(collection(db, 'produk'), orderBy('tanggal', 'desc'));
+    onSnapshot(q, (snapshot) => {
+        window.produkList = [];
+        snapshot.forEach((d) => {
+            window.produkList.push({ id: d.id, ...d.data() });
+        });
+        document.getElementById('errorBanner').classList.add('hidden');
+        document.getElementById('adminErrorBanner').classList.add('hidden');
+        renderUserProducts();
+        if (window.currentUser) {
+            renderDashboard();
+            renderTabelProduk();
+        }
+    }, (error) => {
+        console.error('Firestore error:', error);
+        document.getElementById('errorBanner').classList.remove('hidden');
+        document.getElementById('adminErrorBanner').classList.remove('hidden');
+        showToast('Gagal terhubung ke database', 'error');
+    });
+}
 
 // ===== RENDER USER =====
 window.renderUserProducts = function() {
@@ -741,24 +803,6 @@ window.renderTabelProduk = function() {
 
 window.renderAll = function() { renderDashboard(); renderTabelProduk(); };
 
-// ===== REAL-TIME LISTENER =====
-const q = query(collection(db, 'produk'), orderBy('tanggal', 'desc'));
-onSnapshot(q, (snapshot) => {
-    window.produkList = [];
-    snapshot.forEach((d) => {
-        window.produkList.push({ id: d.id, ...d.data() });
-    });
-    renderUserProducts();
-    if (window.currentUser) {
-        renderDashboard();
-        renderTabelProduk();
-    }
-}, (error) => {
-    console.error('Firestore error:', error);
-    showToast('Gagal terhubung ke database', 'error');
-});
-
-// ===== FILE HANDLING =====
 function handleFileSelect(input, textId, wrapId, previewId) {
     const text = document.getElementById(textId);
     const wrap = document.getElementById(wrapId);
@@ -802,9 +846,9 @@ function compressImage(file, maxWidth = 800, quality = 0.7) {
     });
 }
 
-// ===== CRUD =====
 async function simpanProduk(e) {
     e.preventDefault();
+    if (!dbConnected) { showToast('Database belum dikonfigurasi', 'error'); return; }
     if (!window.currentUser) { showToast('Anda tidak memiliki akses', 'error'); return; }
     
     const barcode = document.getElementById('inputBarcode').value.trim();
@@ -862,6 +906,7 @@ function openEditModal(i) {
 
 async function updateProduk(e) {
     e.preventDefault();
+    if (!dbConnected) { showToast('Database belum dikonfigurasi', 'error'); return; }
     if (!window.currentUser) { showToast('Anda tidak memiliki akses', 'error'); return; }
     
     const docId = document.getElementById('editModal').dataset.docId;
@@ -897,6 +942,7 @@ function openViewModal(i) {
 }
 
 async function hapusProduk(docId) {
+    if (!dbConnected) { showToast('Database belum dikonfigurasi', 'error'); return; }
     if (!window.currentUser) { showToast('Anda tidak memiliki akses', 'error'); return; }
     if (!confirm('Hapus produk ini?')) return;
     try {
@@ -908,11 +954,9 @@ async function hapusProduk(docId) {
     }
 }
 
-// ===== MODAL HELPERS =====
 function openModal(id) { document.getElementById(id).classList.add('show'); }
 function closeModal(id) { document.getElementById(id).classList.remove('show'); }
 
-// ===== SCAN BARCODE =====
 function openScanModal(target) {
     window.scanTarget = target || null;
     window.scannedBarcode = null;
@@ -933,7 +977,7 @@ function openScanModal(target) {
 
 async function startScan() {
     const statusEl = document.getElementById('scanStatus');
-    statusEl.textContent = ' Meminta akses kamera...';
+    statusEl.textContent = '📷 Meminta akses kamera...';
     statusEl.className = 'scan-status';
     
     try {
@@ -981,7 +1025,7 @@ async function startScan() {
                 onScanSuccess,
                 onScanFailure
             );
-            statusEl.innerHTML = ' Arahkan kamera ke barcode...';
+            statusEl.innerHTML = '🎯 Arahkan kamera ke barcode...';
             document.getElementById('btnStartScan').style.display = 'none';
             document.getElementById('btnStopScan').style.display = 'inline-flex';
         } catch (err2) {
@@ -1073,7 +1117,6 @@ function closeScanModal() {
     window.scanTarget = null;
 }
 
-// ===== NAVIGATION =====
 function showSection(id) {
     document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
     document.getElementById(id).classList.remove('hidden');
@@ -1090,13 +1133,13 @@ function showSection(id) {
     if (window.innerWidth <= 900) document.getElementById('sidebar').classList.remove('open');
 }
 
-// ============================================
-// 🎯 SEMUA EVENT LISTENER
-// ============================================
 document.addEventListener('DOMContentLoaded', function() {
     
-    // ===== LOGIN =====
     document.getElementById('btnShowLogin').addEventListener('click', () => {
+        if (!dbConnected) {
+            showToast('Database belum dikonfigurasi. Silakan hubungi admin.', 'error');
+            return;
+        }
         document.getElementById('loginScreen').classList.add('show');
     });
     document.getElementById('btnBackLogin').addEventListener('click', (e) => {
@@ -1104,6 +1147,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('loginScreen').classList.remove('show');
     });
     document.getElementById('btnLogin').addEventListener('click', async () => {
+        if (!dbConnected) { showToast('Database belum dikonfigurasi', 'error'); return; }
         const email = document.getElementById('loginEmail').value.trim();
         const pass = document.getElementById('loginPass').value;
         if (!email || !pass) { showToast('Isi email dan password', 'error'); return; }
@@ -1121,6 +1165,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     document.getElementById('btnLogout').addEventListener('click', async () => {
+        if (!dbConnected) return;
         await signOut(auth);
         document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
         document.getElementById('dashboard').classList.remove('hidden');
@@ -1129,7 +1174,6 @@ document.addEventListener('DOMContentLoaded', function() {
         showToast('Logout berhasil', 'info');
     });
     
-    // ===== NAVIGATION =====
     document.querySelectorAll('.nav-item').forEach(btn => {
         btn.addEventListener('click', () => {
             showSection(btn.dataset.section);
@@ -1142,7 +1186,6 @@ document.addEventListener('DOMContentLoaded', function() {
         showSection('inputProduk');
     });
     
-    // ===== SEARCH =====
     document.getElementById('userSearch').addEventListener('input', () => {
         renderUserProducts();
     });
@@ -1150,7 +1193,6 @@ document.addEventListener('DOMContentLoaded', function() {
         renderTabelProduk();
     });
     
-    // ===== SCAN BUTTONS =====
     document.getElementById('btnScanUser').addEventListener('click', () => {
         openScanModal('user');
     });
@@ -1161,7 +1203,6 @@ document.addEventListener('DOMContentLoaded', function() {
         openScanModal('inputBarcode');
     });
     
-    // ===== SCAN MODAL BUTTONS =====
     document.getElementById('btnStartScan').addEventListener('click', (e) => {
         e.preventDefault();
         startScan();
@@ -1185,7 +1226,6 @@ document.addEventListener('DOMContentLoaded', function() {
         closeScanModal();
     });
     
-    // ===== PRODUCT FORM =====
     document.getElementById('formInputProduk').addEventListener('submit', simpanProduk);
     document.getElementById('btnResetForm').addEventListener('click', () => {
         document.getElementById('formInputProduk').reset();
@@ -1197,7 +1237,6 @@ document.addEventListener('DOMContentLoaded', function() {
         handleFileSelect(e.target, 'inputFotoText', 'inputFotoWrap', 'inputFotoPreview');
     });
     
-    // ===== EDIT FORM =====
     document.getElementById('formEditProduk').addEventListener('submit', updateProduk);
     document.getElementById('btnCancelEdit').addEventListener('click', () => closeModal('editModal'));
     document.getElementById('btnCloseEdit').addEventListener('click', () => closeModal('editModal'));
@@ -1205,10 +1244,8 @@ document.addEventListener('DOMContentLoaded', function() {
         handleFileSelect(e.target, 'editFotoText', 'editFotoWrap', 'editFotoPreview');
     });
     
-    // ===== VIEW MODAL =====
     document.getElementById('btnCloseView').addEventListener('click', () => closeModal('viewModal'));
     
-    // ===== PRODUCT GRID CLICK (User) =====
     document.getElementById('userProductGrid').addEventListener('click', (e) => {
         const card = e.target.closest('.product-card');
         if (card) {
@@ -1217,7 +1254,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // ===== TABLE ACTIONS (Admin) =====
     document.getElementById('tabelProdukBody').addEventListener('click', (e) => {
         const viewBtn = e.target.closest('.btn-view');
         const editBtn = e.target.closest('.btn-edit');
@@ -1235,7 +1271,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // ===== ESC KEY =====
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             document.querySelectorAll('.modal-overlay.show').forEach(m => m.classList.remove('show'));
@@ -1249,6 +1284,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     console.log('✅ Semua event listener terdaftar');
+    console.log(' Database status:', dbConnected ? 'TERHUBUNG' : 'BELUM DIKONFIGURASI');
 });
 </script>
 </body>
