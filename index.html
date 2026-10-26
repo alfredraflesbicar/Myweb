@@ -140,9 +140,12 @@
             background: var(--bg);
         }
         .file-drop.has-file { border-color: var(--accent); border-style: solid; background: rgba(16, 185, 129, 0.05); }
-        .file-drop img { max-width: 100%; max-height: 120px; border-radius: 8px; margin-top: 10px; display: none; }
-        .file-drop.has-file img { display: block; margin: 10px auto 0; }
+        .file-drop img { max-width: 100%; max-height: 220px; width: auto; height: auto; object-fit: contain; border-radius: 10px; margin-top: 12px; display: none; }
+        .file-drop.has-file img { display: block; margin: 12px auto 0; }
         .file-drop.has-file .upload-text { display: none; }
+        .preview-hint { display: none; margin-top: 8px; font-size: 11px; color: var(--accent); }
+        .file-drop.has-file .preview-hint { display: block; }
+        .file-drop.has-file img { cursor: pointer; }
 
         .btn {
             display: inline-flex; align-items: center; justify-content: center; gap: 6px;
@@ -205,12 +208,20 @@
         .photo-modal-content {
             position: relative; display: flex; flex-direction: column; align-items: center;
             gap: 12px; width: min(100%, 1000px); max-height: 100%;
+            overflow-y: auto; padding: 14px 4px 4px;
         }
         .photo-modal-image {
-            display: block; max-width: 100%; max-height: 78vh; width: auto; height: auto;
+            display: block; max-width: 100%; max-height: 62vh; width: auto; height: auto;
             object-fit: contain; border-radius: 12px; box-shadow: 0 16px 60px rgba(0,0,0,.45);
         }
-        .photo-modal-title { color: #f8fafc; font-size: 14px; text-align: center; overflow-wrap: anywhere; }
+        .photo-modal-details {
+            width: min(100%, 560px); padding: 16px 18px; background: var(--surface);
+            border: 1px solid var(--border); border-radius: 12px; display: grid; gap: 10px;
+        }
+        .photo-detail-row { display: grid; grid-template-columns: 100px minmax(0, 1fr); gap: 12px; align-items: start; }
+        .photo-detail-label { color: var(--text-2); font-size: 12px; }
+        .photo-detail-value { color: var(--text); font-size: 14px; font-weight: 600; overflow-wrap: anywhere; }
+        .photo-detail-barcode { font-family: monospace; letter-spacing: .3px; }
         .photo-modal-close {
             position: absolute; top: -14px; right: -14px; width: 40px; height: 40px;
             display: grid; place-items: center; border-radius: 50%;
@@ -350,10 +361,11 @@
                     <form onsubmit="saveProduct(event)">
                         <div class="form-group">
                             <label class="form-label">Foto</label>
-                            <div class="file-drop" id="dropZone1" onclick="document.getElementById('file1').click()">
+                            <div class="file-drop" id="dropZone1" onclick="if (!event.target.closest('input')) document.getElementById('file1').click()">
                                 <svg class="icon" style="width: 32px; height: 32px; color: var(--accent); margin-bottom: 8px;"><use href="#icon-upload"/></svg>
                                 <p class="upload-text" style="font-size: 13px; font-weight: 500;" id="fileText1">Klik untuk ambil foto</p>
-                                <img id="preview1">
+                                <img id="preview1" alt="Preview foto produk">
+                                <p class="preview-hint">Preview foto berhasil dipilih. Klik area ini untuk mengganti foto.</p>
                                 <input type="file" id="file1" accept="image/*" capture="environment" style="display: none;" onchange="handleFile(this, 'fileText1', 'dropZone1', 'preview1')">
                             </div>
                         </div>
@@ -414,8 +426,16 @@
             <svg class="icon"><use href="#icon-x"/></svg>
         </button>
         <img class="photo-modal-image" id="photoModalImage" src="" alt="Foto produk ukuran besar">
-        <div class="photo-modal-title" id="photoModalTitle"></div>
-        <div class="p.barcode" id="barcode"></div>
+        <div class="photo-modal-details">
+            <div class="photo-detail-row">
+                <span class="photo-detail-label">Nama Produk</span>
+                <span class="photo-detail-value" id="photoModalName">-</span>
+            </div>
+            <div class="photo-detail-row">
+                <span class="photo-detail-label">Barcode</span>
+                <span class="photo-detail-value photo-detail-barcode" id="photoModalBarcode">-</span>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -546,7 +566,7 @@
         `).join('');
     }
 
-    // Pop-up foto produk pada tampilan User
+    // Pop-up foto produk pada tampilan User: foto, nama, dan barcode
     const productGrid = document.getElementById('productGrid');
     productGrid.addEventListener('click', (event) => {
         const image = event.target.closest('.card-img');
@@ -554,14 +574,15 @@
         const card = image.closest('.card');
         const product = products.find(p => p.id === card?.dataset.productId);
         if (product && product.foto) {
-            window.openPhotoModal(product.foto, product.nama);
+            window.openPhotoModal(product.foto, product.nama, product.barcode);
         }
     });
 
-    window.openPhotoModal = function(src, title) {
+    window.openPhotoModal = function(src, nama, barcode) {
         if (!src) return;
         document.getElementById('photoModalImage').src = src;
-        document.getElementById('photoModalTitle').textContent = title || 'Foto produk';
+        document.getElementById('photoModalName').textContent = nama || '-';
+        document.getElementById('photoModalBarcode').textContent = barcode || '-';
         document.getElementById('photoModal').classList.add('show');
         document.body.style.overflow = 'hidden';
     };
@@ -630,19 +651,48 @@
     };
 
     function handleFile(input, textId, dropId, previewId) {
-        const file = input.files[0];
-        if (file) {
-            if (file.size > 1024 * 1024) {
-                showToast('Maksimal 1MB', 'error');
-                input.value = '';
-                return;
-            }
-            document.getElementById(textId).textContent = file.name;
-            document.getElementById(dropId).classList.add('has-file');
-            const reader = new FileReader();
-            reader.onload = (e) => { document.getElementById(previewId).src = e.target.result; };
-            reader.readAsDataURL(file);
+        const file = input.files && input.files[0];
+        const dropZone = document.getElementById(dropId);
+        const preview = document.getElementById(previewId);
+        const fileText = document.getElementById(textId);
+
+        if (!file) return;
+
+        // Validasi tipe file
+        if (!file.type || !file.type.startsWith('image/')) {
+            showToast('Pilih file gambar yang valid', 'error');
+            input.value = '';
+            return;
         }
+
+        // Batas ukuran file sesuai ketentuan aplikasi
+        if (file.size > 1024 * 1024) {
+            showToast('Maksimal ukuran foto 1MB', 'error');
+            input.value = '';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            // Tampilkan preview segera setelah gambar berhasil dibaca
+            preview.onload = () => {
+                dropZone.classList.add('has-file');
+                fileText.textContent = file.name;
+            };
+            preview.onerror = () => {
+                dropZone.classList.remove('has-file');
+                preview.removeAttribute('src');
+                input.value = '';
+                fileText.textContent = 'Klik untuk ambil foto';
+                showToast('Preview foto gagal ditampilkan', 'error');
+            };
+            preview.src = e.target.result;
+        };
+        reader.onerror = () => {
+            input.value = '';
+            showToast('Gagal membaca file foto', 'error');
+        };
+        reader.readAsDataURL(file);
     }
 
     function compressImage(file) {
@@ -684,7 +734,8 @@
             document.querySelector('form').reset();
             document.getElementById('fileText1').textContent = 'Klik untuk ambil foto';
             document.getElementById('dropZone1').classList.remove('has-file');
-            document.getElementById('preview1').src = '';
+            document.getElementById('preview1').removeAttribute('src');
+            document.getElementById('file1').value = '';
             switchPage('dashboard', document.querySelector('.nav-btn'));
         } catch (err) {
             showToast('Gagal: ' + err.message, 'error');
