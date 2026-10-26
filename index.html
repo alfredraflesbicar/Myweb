@@ -32,7 +32,7 @@
         /* MOBILE WRAPPER: Membuat tampilan desktop tetap seperti HP */
         .mobile-wrapper {
             width: 100%;
-            max-width: 480px;
+            max-width: none;
             background: var(--bg);
             min-height: 100vh;
             position: relative;
@@ -180,6 +180,46 @@
         .modal-header h3 { font-size: 16px; font-weight: 700; }
         .modal-body { padding: 20px; }
         .close-btn { width: 32px; height: 32px; border-radius: 50%; background: var(--surface-2); display: grid; place-items: center; }
+
+        /* Tampilan desktop/laptop dan pop-up foto produk */
+        @media (min-width: 768px) {
+            body { justify-content: stretch; }
+            .mobile-wrapper { width: 100%; max-width: none; min-height: 100vh; box-shadow: none; }
+            .topbar { padding-left: clamp(24px, 4vw, 56px); padding-right: clamp(24px, 4vw, 56px); }
+            .hero { padding: 36px clamp(24px, 4vw, 56px) 28px; }
+            .content { padding-left: clamp(24px, 4vw, 56px); padding-right: clamp(24px, 4vw, 56px); }
+            .grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 18px; }
+            .card-img { cursor: zoom-in; }
+            .admin-nav { padding-left: clamp(24px, 4vw, 56px); padding-right: clamp(24px, 4vw, 56px); }
+            #page-manage .table-wrap { overflow-x: auto; }
+            .modal-overlay { align-items: center; padding: 24px; }
+            .modal { border-radius: 20px; }
+        }
+        .card-img { cursor: zoom-in; }
+        .photo-modal-overlay {
+            position: fixed; inset: 0; z-index: 300; display: none;
+            align-items: center; justify-content: center; padding: 24px;
+            background: rgba(2, 6, 23, .92); backdrop-filter: blur(6px);
+        }
+        .photo-modal-overlay.show { display: flex; animation: fadeIn .2s; }
+        .photo-modal-content {
+            position: relative; display: flex; flex-direction: column; align-items: center;
+            gap: 12px; width: min(100%, 1000px); max-height: 100%;
+        }
+        .photo-modal-image {
+            display: block; max-width: 100%; max-height: 78vh; width: auto; height: auto;
+            object-fit: contain; border-radius: 12px; box-shadow: 0 16px 60px rgba(0,0,0,.45);
+        }
+        .photo-modal-title { color: #f8fafc; font-size: 14px; text-align: center; overflow-wrap: anywhere; }
+        .photo-modal-close {
+            position: absolute; top: -14px; right: -14px; width: 40px; height: 40px;
+            display: grid; place-items: center; border-radius: 50%;
+            background: #1e293b; border: 1px solid rgba(255,255,255,.2); color: white;
+        }
+        @media (max-width: 767px) {
+            .photo-modal-overlay { padding: 16px; }
+            .photo-modal-close { top: -12px; right: -8px; }
+        }
         
         /* Scanner */
         #reader { width: 100%; border-radius: 12px; overflow: hidden; background: #000; }
@@ -367,6 +407,17 @@
     </div>
 </div>
 
+<!-- PRODUCT PHOTO POPUP -->
+<div class="photo-modal-overlay" id="photoModal" onclick="closePhotoModal(event)" role="dialog" aria-modal="true" aria-label="Foto produk">
+    <div class="photo-modal-content">
+        <button class="photo-modal-close" type="button" onclick="closePhotoModal()" aria-label="Tutup foto">
+            <svg class="icon"><use href="#icon-x"/></svg>
+        </button>
+        <img class="photo-modal-image" id="photoModalImage" src="" alt="Foto produk ukuran besar">
+        <div class="photo-modal-title" id="photoModalTitle"></div>
+    </div>
+</div>
+
 <!-- LOGIN MODAL -->
 <div class="modal-overlay" id="loginModal">
     <div class="modal">
@@ -484,8 +535,8 @@
             return;
         }
         grid.innerHTML = filtered.map(p => `
-            <div class="card">
-                <img src="${p.foto || 'https://via.placeholder.com/220?text=No+Image'}" class="card-img">
+            <div class="card" data-product-id="${p.id}">
+                <img src="${p.foto || 'https://via.placeholder.com/220?text=No+Image'}" class="card-img" alt="${p.nama}" title="Klik untuk memperbesar foto">
                 <div class="card-body">
                     <div class="card-title">${p.nama}</div>
                     <div class="card-meta">${p.barcode}</div>
@@ -493,6 +544,33 @@
             </div>
         `).join('');
     }
+
+    // Pop-up foto produk pada tampilan User
+    const productGrid = document.getElementById('productGrid');
+    productGrid.addEventListener('click', (event) => {
+        const image = event.target.closest('.card-img');
+        if (!image) return;
+        const card = image.closest('.card');
+        const product = products.find(p => p.id === card?.dataset.productId);
+        if (product && product.foto) {
+            window.openPhotoModal(product.foto, product.nama);
+        }
+    });
+
+    window.openPhotoModal = function(src, title) {
+        if (!src) return;
+        document.getElementById('photoModalImage').src = src;
+        document.getElementById('photoModalTitle').textContent = title || 'Foto produk';
+        document.getElementById('photoModal').classList.add('show');
+        document.body.style.overflow = 'hidden';
+    };
+
+    window.closePhotoModal = function(event) {
+        if (event && event.target !== document.getElementById('photoModal')) return;
+        document.getElementById('photoModal').classList.remove('show');
+        document.getElementById('photoModalImage').src = '';
+        document.body.style.overflow = '';
+    };
 
     function renderDashboard() {
         document.getElementById('dashTotal').textContent = products.length;
@@ -722,6 +800,7 @@
 
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
+            window.closePhotoModal();
             document.querySelectorAll('.modal-overlay.show').forEach(m => m.classList.remove('show'));
             if (html5QrCode) { try { html5QrCode.stop(); } catch(e){} }
         }
