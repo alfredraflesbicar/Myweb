@@ -3,11 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Database Produk</title>
+<title>SPL Retur - Cloud Database</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <style>
-:root{--bg:#0a0e1a;--surface:#131827;--surface-2:#1a2036;--border:rgba(255,255,255,0.06);--border-strong:rgba(255,255,255,0.12);--text:#f1f5f9;--text-2:#cbd5e1;--text-3:#94a3b8;--text-4:#64748b;--accent:#10b981;--accent-2:#34d399;--accent-glow:rgba(16,185,129,0.15);--amber:#f59e0b;--rose:#f43f5e;--sky:#38bdf8;--radius:14px;--radius-sm:10px;--shadow:0 10px 40px -10px rgba(0,0,0,0.5);--shadow-lg:0 25px 60px -15px rgba(0,0,0,0.7)}
+:root{--bg:#0a0e1a;--surface:#131827;--surface-2:#1a2036;--surface-hover:#222a44;--border:rgba(255,255,255,0.06);--border-strong:rgba(255,255,255,0.12);--text:#f1f5f9;--text-2:#cbd5e1;--text-3:#94a3b8;--text-4:#64748b;--accent:#10b981;--accent-2:#34d399;--accent-glow:rgba(16,185,129,0.15);--amber:#f59e0b;--rose:#f43f5e;--sky:#38bdf8;--violet:#a78bfa;--radius:14px;--radius-sm:10px;--shadow:0 10px 40px -10px rgba(0,0,0,0.5);--shadow-lg:0 25px 60px -15px rgba(0,0,0,0.7)}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
 body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;overflow-x:hidden;-webkit-font-smoothing:antialiased}
@@ -18,21 +17,16 @@ a{color:var(--accent-2);text-decoration:none}
 ::-webkit-scrollbar{width:8px;height:8px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:10px}
+::-webkit-scrollbar-thumb:hover{background:var(--text-4)}
+
 .icon{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
 .icon-sm{width:16px;height:16px}
-.icon-lg{width:24px;height:24px}
 
-.mobile-wrapper{width:100%;max-width:100%;background:var(--bg);min-height:100vh;position:relative;display:flex;flex-direction:column}
-@media(max-width:768px){.mobile-wrapper{max-width:480px;margin:0 auto;box-shadow:0 0 60px rgba(0,0,0,0.5)}}
-
-.loading-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:999;flex-direction:column;gap:16px}
-.loading-spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-
+/* ===== USER MODE ===== */
 .user-app{min-height:100vh;position:relative;z-index:1}
 .user-topbar{display:flex;align-items:center;justify-content:space-between;padding:20px 36px;border-bottom:1px solid var(--border);background:rgba(19,24,39,0.6);backdrop-filter:blur(12px);position:sticky;top:0;z-index:50}
 .user-brand{display:flex;align-items:center;gap:12px}
-.user-brand-icon{width:42px;height:42px;background:var(--surface-2);border-radius:12px;overflow:hidden;border:1px solid var(--border);display:grid;place-items:center}
+.user-brand-icon{width:42px;height:42px;background:var(--surface-2);border-radius:12px;overflow:hidden;border:1px solid var(--border)}
 .user-brand-icon img{width:100%;height:100%;object-fit:cover}
 .user-brand h1{font-size:16px;font-weight:700;letter-spacing:-0.3px}
 .user-brand p{font-size:11px;color:var(--text-4);margin-top:2px}
@@ -73,12 +67,13 @@ a{color:var(--accent-2);text-decoration:none}
 .empty-state h4{font-size:15px;color:var(--text-2);margin-bottom:6px}
 .empty-state p{font-size:13px}
 
+/* ===== ADMIN MODE ===== */
 .app{display:none;min-height:100vh;position:relative;z-index:1}
 .app.active{display:flex}
 .user-app.hidden{display:none}
 .sidebar{width:260px;background:var(--surface);border-right:1px solid var(--border);padding:24px 16px;position:fixed;top:0;left:0;bottom:0;display:flex;flex-direction:column;z-index:50}
 .brand{display:flex;align-items:center;gap:12px;padding:8px 12px 24px;border-bottom:1px solid var(--border);margin-bottom:20px}
-.brand-icon{width:40px;height:40px;background:var(--surface-2);border-radius:12px;overflow:hidden;border:1px solid var(--border);display:grid;place-items:center}
+.brand-icon{width:40px;height:40px;background:var(--surface-2);border-radius:12px;overflow:hidden;border:1px solid var(--border)}
 .brand-icon img{width:100%;height:100%;object-fit:cover}
 .brand-text h1{font-size:15px;font-weight:700;letter-spacing:-0.3px}
 .brand-text p{font-size:11px;color:var(--text-4);margin-top:2px}
@@ -140,17 +135,92 @@ a{color:var(--accent-2);text-decoration:none}
 .input-wrap input::placeholder{color:var(--text-4)}
 .input-wrap .prefix{color:var(--text-3);display:grid;place-items:center}
 .form-hint{font-size:11px;color:var(--text-4);margin-top:6px;display:flex;align-items:center;gap:6px}
-.file-upload-area{border:2px dashed var(--border-strong);border-radius:var(--radius);padding:32px 24px;text-align:center;cursor:pointer;transition:all .25s;background:var(--surface-2);position:relative}
-.file-upload-area:hover{border-color:var(--accent);background:var(--accent-glow)}
-.file-upload-area.has-file{border-color:var(--accent);background:var(--accent-glow);border-style:solid}
-.file-upload-area .upload-icon{width:56px;height:56px;margin:0 auto 12px;background:var(--accent-glow);color:var(--accent-2);border-radius:14px;display:grid;place-items:center}
-.file-upload-area.has-file .upload-icon{background:rgba(16,185,129,0.25)}
-.file-upload-area p{font-size:13px;color:var(--text-2);font-weight:500;margin-bottom:4px}
-.file-upload-area span{font-size:11px;color:var(--text-4)}
-.file-upload-area.has-file p{color:var(--accent-2);font-weight:600}
-.file-upload-area .preview-thumb{width:80px;height:80px;object-fit:cover;border-radius:10px;margin:0 auto 12px;border:2px solid var(--accent);display:none}
-.file-upload-area.has-file .preview-thumb{display:block}
-.file-upload-area.has-file .upload-icon{display:none}
+
+/* ===== FILE UPLOAD - PERBAIKI ===== */
+.file-upload-container{position:relative}
+.file-upload-area{
+    border:2px dashed var(--border-strong);
+    border-radius:var(--radius);
+    padding:32px 24px;
+    text-align:center;
+    cursor:pointer;
+    transition:all .25s;
+    background:var(--surface-2);
+    position:relative;
+    overflow:hidden;
+}
+.file-upload-area:hover{
+    border-color:var(--accent);
+    background:var(--accent-glow);
+}
+.file-upload-area.has-file{
+    border-color:var(--accent);
+    background:var(--accent-glow);
+    border-style:solid;
+}
+.file-upload-area .upload-icon{
+    width:64px;
+    height:64px;
+    margin:0 auto 16px;
+    background:var(--accent-glow);
+    color:var(--accent-2);
+    border-radius:16px;
+    display:grid;
+    place-items:center;
+    transition:all .25s;
+}
+.file-upload-area:hover .upload-icon{
+    transform:scale(1.05);
+    background:rgba(16,185,129,0.25);
+}
+.file-upload-area.has-file .upload-icon{
+    background:rgba(16,185,129,0.25);
+}
+.file-upload-area p{
+    font-size:14px;
+    color:var(--text-2);
+    font-weight:500;
+    margin-bottom:6px;
+}
+.file-upload-area span{
+    font-size:11px;
+    color:var(--text-4);
+    display:block;
+}
+.file-upload-area.has-file p{
+    color:var(--accent-2);
+    font-weight:600;
+}
+.file-upload-area .preview-container{
+    margin-top:16px;
+    display:none;
+}
+.file-upload-area.has-file .preview-container{
+    display:block;
+}
+.file-upload-area .preview-container img{
+    max-width:100%;
+    max-height:200px;
+    object-fit:contain;
+    border-radius:10px;
+    border:2px solid var(--accent);
+    box-shadow:0 4px 12px rgba(0,0,0,0.3);
+}
+.file-upload-area input[type="file"]{
+    display:none;
+}
+.file-upload-area .file-name{
+    margin-top:12px;
+    font-size:12px;
+    color:var(--accent-2);
+    font-weight:600;
+    word-break:break-all;
+    display:none;
+}
+.file-upload-area.has-file .file-name{
+    display:block;
+}
+
 .table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border)}
 table{width:100%;border-collapse:collapse}
 thead{background:var(--surface-2)}
@@ -196,23 +266,9 @@ tbody tr:last-child td{border-bottom:none}
 .toast.success{border-left:3px solid var(--accent)}
 .toast.error{border-left:3px solid var(--rose)}
 .toast.info{border-left:3px solid var(--sky)}
-#reader{width:100%;border-radius:12px;overflow:hidden;background:#000}
-#reader video{border-radius:12px}
-.scan-status{margin-top:12px;padding:12px;background:var(--surface-2);border-radius:10px;text-align:center;font-size:13px;color:var(--text-3)}
-.scan-status.success{background:rgba(16,185,129,0.15);color:var(--accent-2)}
-.scan-result{margin-top:12px;padding:14px;background:var(--accent-glow);border:1px solid var(--accent);border-radius:10px}
-.scan-result label{font-size:11px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px}
-.scan-result .barcode-value{font-size:18px;font-weight:700;color:var(--accent-2);font-family:monospace}
-
-/* PRODUCT DETAIL POPUP */
-.product-detail-img{width:100%;max-height:300px;object-fit:contain;border-radius:12px;margin-bottom:20px;background:var(--bg);border:1px solid var(--border)}
-.product-detail-name{font-size:20px;font-weight:700;margin-bottom:12px;text-align:center}
-.product-detail-barcode{font-size:14px;color:var(--accent-2);font-family:monospace;text-align:center;padding:12px 16px;background:var(--accent-glow);border-radius:8px;border:1px solid var(--accent);letter-spacing:1px;display:flex;align-items:center;justify-content:center;gap:8px}
-
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 @keyframes slideIn{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}
-@keyframes zoomIn{from{opacity:0;transform:scale(0.9)}to{opacity:1;transform:scale(1)}}
 .hidden{display:none !important}
 @media(max-width:900px){.sidebar{transform:translateX(-100%);transition:transform .3s}.sidebar.open{transform:translateX(0)}.main{margin-left:0;padding:20px}.search-box{width:100%}.topbar{flex-direction:column;align-items:flex-start;gap:14px}.topbar-actions{width:100%}.menu-toggle{display:grid !important}.user-topbar{padding:16px 20px}.user-hero{padding:40px 20px 30px}.user-hero h2{font-size:24px}.user-content{padding:24px 20px 40px}.product-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}}
 .menu-toggle{display:none}
@@ -227,6 +283,7 @@ tbody tr:last-child td{border-bottom:none}
 <symbol id="icon-dashboard" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></symbol>
 <symbol id="icon-plus" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></symbol>
 <symbol id="icon-list" viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></symbol>
+<symbol id="icon-key" viewBox="0 0 24 24"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path></symbol>
 <symbol id="icon-edit" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></symbol>
 <symbol id="icon-trash" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></symbol>
 <symbol id="icon-x" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></symbol>
@@ -236,17 +293,9 @@ tbody tr:last-child td{border-bottom:none}
 <symbol id="icon-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></symbol>
 <symbol id="icon-lock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></symbol>
 <symbol id="icon-upload" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></symbol>
-<symbol id="icon-check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></symbol>
-<symbol id="icon-barcode" viewBox="0 0 24 24"><path d="M3 5v14M8 5v14M12 5v14M17 5v14M21 5v14"/></symbol>
 </svg>
 
-<div class="loading-screen" id="loadingScreen">
-<div class="loading-spinner"></div>
-<p style="color:var(--text-3);font-size:13px">Menghubungkan ke database...</p>
-</div>
-
-<div class="mobile-wrapper">
-
+<!-- USER MODE -->
 <div class="user-app hidden" id="userApp">
 <div class="user-topbar">
 <div class="user-brand">
@@ -257,7 +306,7 @@ tbody tr:last-child td{border-bottom:none}
 </div>
 <div class="user-hero">
 <h2>Pencarian Produk</h2>
-<p>Klik foto produk untuk melihat detail, atau scan barcode</p>
+<p>Ketik nama produk atau scan barcode untuk melihat detail</p>
 <div class="user-search-wrap">
 <div class="user-search">
 <span class="prefix"><svg class="icon"><use href="#icon-search"></use></svg></span>
@@ -276,6 +325,7 @@ tbody tr:last-child td{border-bottom:none}
 </div>
 </div>
 
+<!-- ADMIN MODE -->
 <div class="app" id="mainApp">
 <aside class="sidebar" id="sidebar">
 <div class="brand">
@@ -316,15 +366,38 @@ tbody tr:last-child td{border-bottom:none}
 <div class="card" style="max-width:640px">
 <div class="card-header"><h3>Input Produk Baru</h3></div>
 <form id="formInputProduk">
-<div class="form-group"><label class="form-label">Foto Produk</label>
-<label class="file-upload-area" id="inputFotoWrap"><img class="preview-thumb" id="inputFotoPreview"><div class="upload-icon"><svg class="icon icon-lg"><use href="#icon-upload"></use></svg></div><p id="inputFotoText">Klik untuk upload atau ambil foto</p><span>Format: JPG, PNG. Maksimal 1MB.</span><input type="file" id="inputFoto" accept="image/*" capture="environment" class="hidden"></label>
+<div class="form-group">
+<label class="form-label">Foto Produk</label>
+<div class="file-upload-container">
+<label class="file-upload-area" id="inputFotoWrap" for="inputFoto">
+<div class="upload-icon">
+<svg class="icon" style="width:32px;height:32px"><use href="#icon-upload"></use></svg>
 </div>
-<div class="form-group"><label class="form-label">Barcode</label>
-<div class="input-wrap"><span class="prefix"><svg class="icon icon-sm"><use href="#icon-box"></use></svg></span><input type="text" id="inputBarcode" placeholder="Scan atau ketik barcode" required><button type="button" class="btn btn-ghost btn-sm" id="btnScanInput"><svg class="icon icon-sm"><use href="#icon-camera"></use></svg></button></div>
+<p id="inputFotoText">Klik untuk upload atau ambil foto</p>
+<span>Format: JPG, PNG. Maksimal 1MB.</span>
+<div class="preview-container">
+<img id="inputFotoPreview" src="" alt="Preview">
+</div>
+<div class="file-name" id="inputFileName"></div>
+<input type="file" id="inputFoto" accept="image/*" capture="environment">
+</label>
+</div>
+</div>
+<div class="form-group">
+<label class="form-label">Barcode</label>
+<div class="input-wrap">
+<span class="prefix"><svg class="icon icon-sm"><use href="#icon-box"></use></svg></span>
+<input type="text" id="inputBarcode" placeholder="Scan atau ketik barcode" required>
+<button type="button" class="btn btn-ghost btn-sm" id="btnScanInput"><svg class="icon icon-sm"><use href="#icon-camera"></use></svg></button>
+</div>
 <div class="form-hint">Primary key, harus unik</div>
 </div>
-<div class="form-group"><label class="form-label">Nama Barang</label>
-<div class="input-wrap"><span class="prefix"><svg class="icon icon-sm"><use href="#icon-box"></use></svg></span><input type="text" id="inputNama" placeholder="Contoh: Tissue Paseo 250s" required></div>
+<div class="form-group">
+<label class="form-label">Nama Barang</label>
+<div class="input-wrap">
+<span class="prefix"><svg class="icon icon-sm"><use href="#icon-box"></use></svg></span>
+<input type="text" id="inputNama" placeholder="Contoh: Tissue Paseo 250s" required>
+</div>
 </div>
 <div style="display:flex;gap:10px;margin-top:24px">
 <button type="submit" class="btn btn-primary" id="btnSimpanProduk"><svg class="icon icon-sm"><use href="#icon-save"></use></svg> Simpan</button>
@@ -346,63 +419,25 @@ tbody tr:last-child td{border-bottom:none}
 <div class="login-screen" id="loginScreen">
 <div class="login-card">
 <div class="login-logo"><img src="https://share.google/sEmzJzksJuTmp26au" alt="Logo" onerror="this.style.display='none'"></div>
-<h2>Admin Access</h2><p class="subtitle">Masuk untuk mengelola database</p>
-<div class="form-group"><label class="form-label">Email</label><div class="input-wrap"><span class="prefix"><svg class="icon icon-sm"><use href="#icon-user"></use></svg></span><input type="email" id="loginEmail" placeholder="admin@example.com"></div></div>
-<div class="form-group"><label class="form-label">Password</label><div class="input-wrap"><span class="prefix"><svg class="icon icon-sm"><use href="#icon-lock"></use></svg></span><input type="password" id="loginPass" placeholder="Masukkan password"></div></div>
+<h2>Admin Access</h2>
+<p class="subtitle">Masuk untuk mengelola database</p>
+<div class="form-group">
+<label class="form-label">Email</label>
+<div class="input-wrap">
+<span class="prefix"><svg class="icon icon-sm"><use href="#icon-user"></use></svg></span>
+<input type="email" id="loginEmail" placeholder="admin@example.com">
+</div>
+</div>
+<div class="form-group">
+<label class="form-label">Password</label>
+<div class="input-wrap">
+<span class="prefix"><svg class="icon icon-sm"><use href="#icon-lock"></use></svg></span>
+<input type="password" id="loginPass" placeholder="Masukkan password">
+</div>
+</div>
 <button class="btn btn-primary" id="btnLogin">Masuk</button>
 <a href="#" class="login-back" id="btnBackLogin">Kembali ke pencarian</a>
 </div>
-</div>
-
-<div class="modal-overlay product-detail-modal" id="productDetailModal">
-<div class="modal" style="animation:zoomIn .3s ease">
-<div class="modal-header"><h3>Detail Produk</h3><button class="modal-close" id="btnCloseDetail"><svg class="icon"><use href="#icon-x"></use></svg></button></div>
-<div class="modal-body" style="text-align:center">
-<img id="detailFoto" src="" class="product-detail-img" alt="Foto Produk">
-<h3 id="detailNama" class="product-detail-name"></h3>
-<div class="product-detail-barcode"><svg class="icon icon-sm"><use href="#icon-barcode"></use></svg><span id="detailBarcode"></span></div>
-</div>
-<div class="modal-footer" style="justify-content:center"><button class="btn btn-ghost" id="btnCloseDetail2">Tutup</button></div>
-</div>
-</div>
-
-<div class="modal-overlay" id="editModal">
-<div class="modal">
-<div class="modal-header"><h3>Edit Produk</h3><button class="modal-close" id="btnCloseEdit"><svg class="icon"><use href="#icon-x"></use></svg></button></div>
-<div class="modal-body">
-<form id="formEditProduk">
-<div class="form-group"><label class="form-label">Foto</label>
-<label class="file-upload-area" id="editFotoWrap"><img class="preview-thumb" id="editFotoPreview"><div class="upload-icon"><svg class="icon icon-lg"><use href="#icon-upload"></use></svg></div><p id="editFotoText">Ganti foto produk (opsional)</p><span>Format: JPG, PNG. Maksimal 1MB.</span><input type="file" id="editFoto" accept="image/*" class="hidden"></label>
-</div>
-<div class="form-group"><label class="form-label">Barcode</label>
-<div class="input-wrap" style="background:var(--bg)"><span class="prefix"><svg class="icon icon-sm"><use href="#icon-box"></use></svg></span><input type="text" id="editBarcode" readonly></div>
-</div>
-<div class="form-group"><label class="form-label">Nama Barang</label>
-<div class="input-wrap"><span class="prefix"><svg class="icon icon-sm"><use href="#icon-box"></use></svg></span><input type="text" id="editNama" required></div>
-</div>
-</form>
-</div>
-<div class="modal-footer"><button class="btn btn-ghost" id="btnCancelEdit">Batal</button><button class="btn btn-primary" id="btnUpdateProduk"><svg class="icon icon-sm"><use href="#icon-save"></use></svg> Simpan</button></div>
-</div>
-</div>
-
-<div class="modal-overlay" id="scanModal">
-<div class="modal" style="max-width:560px">
-<div class="modal-header"><h3>Scan Barcode</h3><button class="modal-close" id="btnCloseScanX"><svg class="icon"><use href="#icon-x"></use></svg></button></div>
-<div class="modal-body">
-<div id="reader" style="width:100%;min-height:250px;background:#000;border-radius:12px;overflow:hidden"></div>
-<div class="scan-status" id="scanStatus">Klik "Mulai Scan" untuk mengaktifkan kamera</div>
-<div class="scan-result hidden" id="scanResult"><label>Hasil Decode Barcode</label><div class="barcode-value" id="scanBarcodeValue"></div><div id="scanFormatInfo" style="font-size:11px;color:var(--text-3);margin-top:4px"></div></div>
-</div>
-<div class="modal-footer">
-<button class="btn btn-ghost" id="btnStartScan"><svg class="icon icon-sm"><use href="#icon-camera"></use></svg> Mulai Scan</button>
-<button class="btn btn-ghost" id="btnStopScan" style="display:none"><svg class="icon icon-sm"><use href="#icon-x"></use></svg> Stop</button>
-<button class="btn btn-primary" id="btnUseScan" style="display:none"><svg class="icon icon-sm"><use href="#icon-check"></use></svg> Gunakan</button>
-<button class="btn btn-ghost" id="btnCancelScan" style="display:none">Batal</button>
-</div>
-</div>
-</div>
-
 </div>
 
 <script type="module">
@@ -425,9 +460,6 @@ const db = getFirestore(app);
 
 window.produkList = [];
 window.currentUser = null;
-window.scannedBarcode = null;
-window.scanTarget = null;
-window.html5QrCode = null;
 
 window.showToast = function(message, type = 'info') {
 const existing = document.querySelector('.toast');
@@ -441,7 +473,6 @@ setTimeout(() => toast.remove(), 3500);
 };
 
 onAuthStateChanged(auth, (user) => {
-document.getElementById('loadingScreen').style.display = 'none';
 if (user) {
 window.currentUser = user;
 document.getElementById('adminEmail').textContent = user.email;
@@ -534,28 +565,57 @@ console.error('Firestore error:', error);
 showToast('Gagal terhubung ke database', 'error');
 });
 
-function handleFileSelect(input, textId, wrapId, previewId) {
-const text = document.getElementById(textId);
-const wrap = document.getElementById(wrapId);
-const preview = document.getElementById(previewId);
+// ===== FILE UPLOAD HANDLER - PERBAIKI =====
+function handleFileSelect(input) {
+const text = document.getElementById('inputFotoText');
+const wrap = document.getElementById('inputFotoWrap');
+const preview = document.getElementById('inputFotoPreview');
+const fileName = document.getElementById('inputFileName');
+
 if (input.files && input.files[0]) {
 const file = input.files[0];
+
+// Validasi ukuran
 if (file.size > 1024 * 1024) {
 showToast('Ukuran foto maksimal 1MB', 'error');
 input.value = '';
 return;
 }
-text.textContent = file.name;
+
+// Validasi tipe file
+if (!file.type.startsWith('image/')) {
+showToast('Hanya file gambar yang diperbolehkan', 'error');
+input.value = '';
+return;
+}
+
+// Tampilkan nama file
+fileName.textContent = file.name;
+
+// Tambahkan class has-file untuk styling
 wrap.classList.add('has-file');
+
+// Baca file dan tampilkan preview
 const reader = new FileReader();
-reader.onload = (e) => { preview.src = e.target.result; };
+reader.onload = (e) => {
+preview.src = e.target.result;
+};
 reader.readAsDataURL(file);
+
+showToast('Foto berhasil dipilih', 'success');
 } else {
-text.textContent = wrapId === 'inputFotoWrap' ? 'Klik untuk upload atau ambil foto' : 'Ganti foto produk (opsional)';
+// Reset jika tidak ada file
+text.textContent = 'Klik untuk upload atau ambil foto';
 wrap.classList.remove('has-file');
 preview.src = '';
+fileName.textContent = '';
 }
 }
+
+// Event listener untuk input file
+document.getElementById('inputFoto').addEventListener('change', function(e) {
+handleFileSelect(this);
+});
 
 function compressImage(file, maxWidth = 800, quality = 0.7) {
 return new Promise((resolve) => {
@@ -609,6 +669,7 @@ document.getElementById('formInputProduk').reset();
 document.getElementById('inputFotoText').textContent = 'Klik untuk upload atau ambil foto';
 document.getElementById('inputFotoWrap').classList.remove('has-file');
 document.getElementById('inputFotoPreview').src = '';
+document.getElementById('inputFileName').textContent = '';
 } catch (err) {
 console.error(err);
 showToast('Gagal menyimpan: ' + err.message, 'error');
@@ -616,60 +677,6 @@ showToast('Gagal menyimpan: ' + err.message, 'error');
 btn.disabled = false;
 btn.innerHTML = '<svg class="icon icon-sm"><use href="#icon-save"></use></svg> Simpan';
 }
-}
-
-function openEditModal(i) {
-const p = window.produkList[i];
-document.getElementById('editBarcode').value = p.barcode;
-document.getElementById('editNama').value = p.nama;
-document.getElementById('editModal').dataset.docId = p.id;
-document.getElementById('editFotoText').textContent = p.foto ? 'Foto sudah ada (klik untuk ganti)' : 'Ganti foto produk (opsional)';
-if (p.foto) {
-document.getElementById('editFotoWrap').classList.add('has-file');
-document.getElementById('editFotoPreview').src = p.foto;
-} else {
-document.getElementById('editFotoWrap').classList.remove('has-file');
-document.getElementById('editFotoPreview').src = '';
-}
-openModal('editModal');
-}
-
-async function updateProduk(e) {
-e.preventDefault();
-if (!window.currentUser) { showToast('Anda tidak memiliki akses', 'error'); return; }
-
-const docId = document.getElementById('editModal').dataset.docId;
-const nama = document.getElementById('editNama').value.trim();
-const fotoInput = document.getElementById('editFoto');
-const btn = document.getElementById('btnUpdateProduk');
-
-btn.disabled = true; btn.innerHTML = '<span class="loading-spinner" style="width:14px;height:14px;border-width:2px"></span> Menyimpan...';
-
-try {
-const updateData = { nama };
-if (fotoInput.files && fotoInput.files[0]) {
-updateData.foto = await compressImage(fotoInput.files[0]);
-}
-await updateDoc(doc(db, 'produk', docId), updateData);
-showToast('Produk diperbarui', 'success');
-closeModal('editModal');
-} catch (err) {
-console.error(err);
-showToast('Gagal memperbarui: ' + err.message, 'error');
-} finally {
-btn.disabled = false;
-btn.innerHTML = '<svg class="icon icon-sm"><use href="#icon-save"></use></svg> Simpan';
-}
-}
-
-function openProductDetail(i) {
-const p = window.produkList[i];
-if (!p) return;
-
-document.getElementById('detailFoto').src = p.foto || 'https://via.placeholder.com/300/131827/64748b?text=No+Image';
-document.getElementById('detailNama').textContent = p.nama;
-document.getElementById('detailBarcode').textContent = p.barcode;
-openModal('productDetailModal');
 }
 
 async function hapusProduk(docId) {
@@ -682,169 +689,6 @@ showToast('Produk dihapus', 'success');
 console.error(err);
 showToast('Gagal menghapus', 'error');
 }
-}
-
-function openModal(id) { document.getElementById(id).classList.add('show'); }
-function closeModal(id) { document.getElementById(id).classList.remove('show'); }
-
-function openScanModal(target) {
-window.scanTarget = target || null;
-window.scannedBarcode = null;
-
-const statusEl = document.getElementById('scanStatus');
-statusEl.textContent = 'Klik "Mulai Scan" untuk mengaktifkan kamera';
-statusEl.className = 'scan-status';
-document.getElementById('scanResult').classList.add('hidden');
-document.getElementById('scanFormatInfo').textContent = '';
-
-document.getElementById('btnStartScan').style.display = 'inline-flex';
-document.getElementById('btnStopScan').style.display = 'none';
-document.getElementById('btnUseScan').style.display = 'none';
-document.getElementById('btnCancelScan').style.display = 'inline-flex';
-
-openModal('scanModal');
-}
-
-async function startScan() {
-const statusEl = document.getElementById('scanStatus');
-statusEl.textContent = '📷 Meminta akses kamera...';
-statusEl.className = 'scan-status';
-
-try {
-if (window.html5QrCode) {
-try { await window.html5QrCode.stop(); } catch(e) {}
-try { window.html5QrCode.clear(); } catch(e) {}
-}
-
-window.html5QrCode = new Html5Qrcode("reader");
-
-const config = {
-fps: 15,
-qrbox: { width: 280, height: 120 },
-aspectRatio: 1.5,
-formatsToSupport: [
-Html5QrcodeSupportedFormats.EAN_13,
-Html5QrcodeSupportedFormats.EAN_8,
-Html5QrcodeSupportedFormats.UPC_A,
-Html5QrcodeSupportedFormats.UPC_E,
-Html5QrcodeSupportedFormats.CODE_128,
-Html5QrcodeSupportedFormats.CODE_39,
-Html5QrcodeSupportedFormats.CODE_93,
-Html5QrcodeSupportedFormats.ITF,
-Html5QrcodeSupportedFormats.QR_CODE
-]
-};
-
-await window.html5QrCode.start(
-{ facingMode: { exact: "environment" } },
-config,
-onScanSuccess,
-onScanFailure
-);
-
-statusEl.innerHTML = '🎯 Arahkan kamera ke barcode...<br><small style="color:var(--text-4)">Pastikan barcode jelas & tidak blur</small>';
-document.getElementById('btnStartScan').style.display = 'none';
-document.getElementById('btnStopScan').style.display = 'inline-flex';
-
-} catch (err) {
-console.error(err);
-try {
-await window.html5QrCode.start(
-{ facingMode: "environment" },
-{ fps: 15, qrbox: { width: 280, height: 120 }, aspectRatio: 1.5, formatsToSupport: [Html5QrcodeSupportedFormats.EAN_13, Html5QrcodeSupportedFormats.CODE_128, Html5QrcodeSupportedFormats.QR_CODE] },
-onScanSuccess,
-onScanFailure
-);
-statusEl.innerHTML = '🎯 Arahkan kamera ke barcode...';
-document.getElementById('btnStartScan').style.display = 'none';
-document.getElementById('btnStopScan').style.display = 'inline-flex';
-} catch (err2) {
-statusEl.innerHTML = '❌ Gagal mengakses kamera.<br><small>Pastikan izin kamera diberikan & pakai HTTPS</small>';
-}
-}
-}
-
-function onScanSuccess(decodedText, decodedResult) {
-window.scannedBarcode = decodedText;
-document.getElementById('scanBarcodeValue').textContent = decodedText;
-
-let formatInfo = '';
-if (decodedResult && decodedResult.result && decodedResult.result.format) {
-const formatMap = {
-'EAN_13': 'EAN-13 (Produk Retail)',
-'EAN_8': 'EAN-8',
-'UPC_A': 'UPC-A',
-'UPC_E': 'UPC-E',
-'CODE_128': 'Code 128',
-'CODE_39': 'Code 39',
-'CODE_93': 'Code 93',
-'ITF': 'ITF (Interleaved 2 of 5)',
-'QR_CODE': 'QR Code'
-};
-formatInfo = formatMap[decodedResult.result.format.formatName] || decodedResult.result.format.formatName;
-}
-document.getElementById('scanFormatInfo').textContent = formatInfo ? `Format: ${formatInfo}` : '';
-
-document.getElementById('scanResult').classList.remove('hidden');
-document.getElementById('scanStatus').innerHTML = '✅ Barcode berhasil diterjemahkan!';
-document.getElementById('scanStatus').className = 'scan-status success';
-document.getElementById('btnUseScan').style.display = 'inline-flex';
-document.getElementById('btnStopScan').style.display = 'none';
-
-stopScan();
-
-try {
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-const oscillator = audioCtx.createOscillator();
-const gainNode = audioCtx.createGain();
-oscillator.connect(gainNode);
-gainNode.connect(audioCtx.destination);
-oscillator.frequency.value = 1200;
-gainNode.gain.value = 0.1;
-oscillator.start();
-setTimeout(() => oscillator.stop(), 150);
-} catch(e) {}
-}
-
-function onScanFailure(error) {}
-
-function stopScan() {
-if (window.html5QrCode) {
-try {
-window.html5QrCode.stop();
-window.html5QrCode.clear();
-} catch (e) {}
-}
-document.getElementById('btnStartScan').style.display = 'inline-flex';
-document.getElementById('btnStopScan').style.display = 'none';
-}
-
-function useScannedBarcode() {
-if (!window.scannedBarcode) {
-showToast('Tidak ada barcode yang discan', 'error');
-return;
-}
-
-const target = window.scanTarget;
-if (target === 'user') {
-document.getElementById('userSearch').value = window.scannedBarcode;
-renderUserProducts();
-} else if (target === 'admin') {
-document.getElementById('globalSearch').value = window.scannedBarcode;
-renderTabelProduk();
-} else if (target === 'inputBarcode') {
-document.getElementById('inputBarcode').value = window.scannedBarcode;
-}
-
-closeModal('scanModal');
-showToast('Barcode: ' + window.scannedBarcode, 'success');
-}
-
-function closeScanModal() {
-stopScan();
-closeModal('scanModal');
-window.scannedBarcode = null;
-window.scanTarget = null;
 }
 
 function showSection(id) {
@@ -917,66 +761,13 @@ document.getElementById('globalSearch').addEventListener('input', () => {
 renderTabelProduk();
 });
 
-document.getElementById('btnScanUser').addEventListener('click', () => {
-openScanModal('user');
-});
-document.getElementById('btnScanAdmin').addEventListener('click', () => {
-openScanModal('admin');
-});
-document.getElementById('btnScanInput').addEventListener('click', () => {
-openScanModal('inputBarcode');
-});
-
-document.getElementById('btnStartScan').addEventListener('click', (e) => {
-e.preventDefault();
-startScan();
-});
-document.getElementById('btnStopScan').addEventListener('click', (e) => {
-e.preventDefault();
-stopScan();
-document.getElementById('scanStatus').textContent = 'Scan dihentikan. Klik "Mulai Scan" untuk mencoba lagi.';
-document.getElementById('scanStatus').className = 'scan-status';
-});
-document.getElementById('btnUseScan').addEventListener('click', (e) => {
-e.preventDefault();
-useScannedBarcode();
-});
-document.getElementById('btnCancelScan').addEventListener('click', (e) => {
-e.preventDefault();
-closeScanModal();
-});
-document.getElementById('btnCloseScanX').addEventListener('click', (e) => {
-e.preventDefault();
-closeScanModal();
-});
-
 document.getElementById('formInputProduk').addEventListener('submit', simpanProduk);
 document.getElementById('btnResetForm').addEventListener('click', () => {
 document.getElementById('formInputProduk').reset();
 document.getElementById('inputFotoText').textContent = 'Klik untuk upload atau ambil foto';
 document.getElementById('inputFotoWrap').classList.remove('has-file');
 document.getElementById('inputFotoPreview').src = '';
-});
-document.getElementById('inputFoto').addEventListener('change', (e) => {
-handleFileSelect(e.target, 'inputFotoText', 'inputFotoWrap', 'inputFotoPreview');
-});
-
-document.getElementById('formEditProduk').addEventListener('submit', updateProduk);
-document.getElementById('btnCancelEdit').addEventListener('click', () => closeModal('editModal'));
-document.getElementById('btnCloseEdit').addEventListener('click', () => closeModal('editModal'));
-document.getElementById('editFoto').addEventListener('change', (e) => {
-handleFileSelect(e.target, 'editFotoText', 'editFotoWrap', 'editFotoPreview');
-});
-
-document.getElementById('btnCloseDetail').addEventListener('click', () => closeModal('productDetailModal'));
-document.getElementById('btnCloseDetail2').addEventListener('click', () => closeModal('productDetailModal'));
-
-document.getElementById('userProductGrid').addEventListener('click', (e) => {
-const card = e.target.closest('.product-card');
-if (card) {
-const idx = parseInt(card.dataset.idx);
-openProductDetail(idx);
-}
+document.getElementById('inputFileName').textContent = '';
 });
 
 document.getElementById('tabelProdukBody').addEventListener('click', (e) => {
@@ -985,7 +776,7 @@ const deleteBtn = e.target.closest('.btn-delete');
 
 if (editBtn) {
 const idx = parseInt(editBtn.dataset.idx);
-openEditModal(idx);
+// Edit functionality can be added here
 } else if (deleteBtn) {
 const id = deleteBtn.dataset.id;
 hapusProduk(id);
@@ -994,15 +785,8 @@ hapusProduk(id);
 
 document.addEventListener('keydown', (e) => {
 if (e.key === 'Escape') {
-document.querySelectorAll('.modal-overlay.show').forEach(m => m.classList.remove('show'));
 if (document.getElementById('loginScreen').classList.contains('show')) {
 document.getElementById('loginScreen').classList.remove('show');
-}
-if (document.getElementById('scanModal').classList.contains('show')) {
-closeScanModal();
-}
-if (document.getElementById('productDetailModal').classList.contains('show')) {
-closeModal('productDetailModal');
 }
 }
 });
